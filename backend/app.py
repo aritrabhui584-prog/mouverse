@@ -318,8 +318,10 @@ def recommend():
         # =====================================
         titles = [str(movie.get("title", "Unknown")) for _, movie in filtered.iterrows()]
         
-        with ThreadPoolExecutor(max_workers=min(len(titles), 12)) as executor:
-            details_list = list(executor.map(fetch_movie_with_cache, titles))
+        details_list = []
+        if titles:
+            with ThreadPoolExecutor(max_workers=min(len(titles), 12)) as executor:
+                details_list = list(executor.map(fetch_movie_with_cache, titles))
 
         movies_list = []
 
@@ -397,11 +399,6 @@ def recommend():
             runtime=150,
             rating=0
         )
-
-# =========================================
-# RUN APP
-# =========================================
-
 if __name__ == "__main__":
     app.run(
         debug=True
