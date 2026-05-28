@@ -177,7 +177,7 @@ for efficient recommendation generation.
 
 # 👨‍💻 Developed By
 
-**Aritra (Subho)**
+**Aritra Bhui**
 
 ---
 
