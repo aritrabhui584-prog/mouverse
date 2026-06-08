@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-06-08 19:46:58",
+  "timestamp": "2026-06-08 20:35:50",
   "inputs": {
     "mood": "happy",
     "genre": "Action",
     "language": "",
     "region": "USA",
-    "min_rating": 0,
+    "min_rating": 4.5,
     "max_runtime": 240
   },
   "pipeline_trace": {
@@ -303,21 +303,21 @@
     "The Matrix",
     "Inception",
     "The Dark Knight",
-    "The Lord of the Rings: The Fellowship of the Ring",
     "Dunkirk",
+    "The Lord of the Rings: The Fellowship of the Ring",
     "Skyfall",
     "1917",
     "Gladiator",
     "The Dark Knight Rises",
-    "The Shawshank Redemption",
     "The Grand Budapest Hotel",
-    "The Lion King",
+    "The Shawshank Redemption",
     "Love Actually",
-    "Forrest Gump",
+    "The Lion King",
     "Slumdog Millionaire",
+    "Forrest Gump",
     "The Silence of the Lambs",
+    "Atonement",
     "Fight Club",
-    "Goodfellas",
-    "Pulp Fiction"
+    "Goodfellas"
   ]
 }

@@ -863,6 +863,22 @@ const MOUMI = {
     
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
+    // Safety escape + basic markdown format helper
+    const formatMessage = (msg) => {
+      let escaped = msg
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+      // Replace **text** or *text* with <strong>text</strong>
+      escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      escaped = escaped.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+      return escaped;
+    };
+    
+    const htmlContent = formatMessage(text);
+    
     if (sender === 'moumi') {
       messageDiv.innerHTML = `
         <div class="chat-message-avatar">
@@ -871,7 +887,7 @@ const MOUMI = {
           </div>
         </div>
         <div class="chat-message-content">
-          <div class="chat-message-text">${text}</div>
+          <div class="chat-message-text">${htmlContent}</div>
           <time class="chat-time">${time}</time>
         </div>
       `;
@@ -881,7 +897,7 @@ const MOUMI = {
     } else {
       messageDiv.innerHTML = `
         <div class="chat-message-content">
-          <div class="chat-message-text">${text}</div>
+          <div class="chat-message-text">${htmlContent}</div>
           <time class="chat-time">${time}</time>
         </div>
       `;

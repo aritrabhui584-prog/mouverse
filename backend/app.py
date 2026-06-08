@@ -98,13 +98,6 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # CSRF Protection
 csrf = CSRFProtect(app)
 
-# Exempt API endpoints from CSRF protection (they use AJAX)
-csrf.exempt('/api/trending')
-csrf.exempt('/api/recommendations')
-csrf.exempt('/api/posters')
-csrf.exempt('/api/watch')
-csrf.exempt('/api/history')
-
 # Rate Limiting
 limiter = Limiter(
     app=app,
@@ -112,9 +105,8 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"],
     storage_uri="memory://"
 )
-csrf.exempt('/api/rate')
-csrf.exempt('/api/click')
-csrf.exempt('/api/recommendations-personalized')
+
+# AJAX POST endpoints are exempted from CSRF protection using @csrf.exempt decorators on their view functions
 
 # Initialize Login Manager
 login_manager = LoginManager()
@@ -1422,6 +1414,7 @@ def api_recommendations():
         return jsonify({"success": False, "error": "An unexpected error occurred. Please try again."}), 500
 
 @app.route("/api/watch", methods=["POST"])
+@csrf.exempt
 @login_required
 def api_watch():
     try:
@@ -1558,6 +1551,7 @@ def api_fetch_poster():
         return jsonify({"success": False, "error": "Could not fetch poster"}), 500
 
 @app.route("/api/rate", methods=["POST"])
+@csrf.exempt
 @login_required
 def api_rate():
     try:
@@ -1604,6 +1598,7 @@ def api_rate():
 
 
 @app.route("/api/click", methods=["POST"])
+@csrf.exempt
 @login_required
 def api_click():
     try:
@@ -1874,6 +1869,34 @@ TIME_GREETINGS = {
     "night": ["Good night", "Night", "Late night"],
 }
 
+RESTRICTED_TOPICS = [
+    'medical advice',
+    'legal advice',
+    'financial advice',
+    'therapy',
+    'mental health treatment',
+    'diagnosis'
+]
+
+RESTRICTED_RESPONSES = {
+    'english': "I'm your AI movie companion, not a professional advisor. For medical, legal, or financial matters, please consult a qualified professional. However, I can suggest some comforting films if you'd like! 🎬",
+    'bengali': "আমি তোমার সিনেমা সঙ্গী, পেশাদার উপদেষ্টা নই। চিকিৎসা, আইনি বা আর্থিক বিষয়ের জন্য দয়া করে যোগ্য পেশাদারের সাথে পরামর্শ করুন। তবে আমি কিছু আরামদায়ক সিনেমা সাজেস্ট করতে পারি! 🎬",
+    'hindi': "मैं आपका AI फिल्म साथी हूं, पेशेवर सलाहकार नहीं। चिकित्सा, कानूनी या वित्तीय मामलों के लिए कृपया योग्य पेशेवर से परामर्श लें। हालांकि, मैं आपको कुछ आरामदायक फिल्में सुझा सकता हूं! 🎬",
+    'tamil': "நான் உங்கள் AI திரைப்பட தோழர், தொழில்முறை ஆலோசகர் அல்ல. மருத்துவ, சட்ட அல்லது நிதி விவகாரங்களுக்கு தயவு செய்து தகுதியான தொழில்முறை நிபுணரை அணுகுங்கள். இருப்பினும், நான் சில ஆறுதலான படங்களை பரிந்துரைக்கலாம்! 🎬"
+}
+
+def _detect_language(text):
+    """Detect text language based on script patterns matching the frontend"""
+    text_lower = text.lower()
+    if re.search(r"[\u0980-\u09ff]", text_lower):
+        return "bengali"
+    elif re.search(r"[\u0900-\u097f]", text_lower):
+        return "hindi"
+    elif re.search(r"[\u0b80-\u0bff]", text_lower):
+        return "tamil"
+    else:
+        return "english"
+
 
 def _detect_emotion(text):
     """Enhanced emotion detection with multiple keywords per emotion"""
@@ -2041,6 +2064,12 @@ def _chatbot_reply(message, mood, region, user_id=None, user_name=None, client_t
     if not text:
         return "Say something — I'm all ears and popcorn! 🍿"
 
+    # Backend safety check for restricted topics
+    lang = _detect_language(text)
+    for topic in RESTRICTED_TOPICS:
+        if topic in text:
+            return RESTRICTED_RESPONSES.get(lang, RESTRICTED_RESPONSES['english'])
+
     # Time queries (detecting local timezone, region, and showing local time)
     if "what time" in text or "current time" in text or "what's the time" in text:
         hour = client_hour
@@ -2103,14 +2132,7 @@ def _chatbot_reply(message, mood, region, user_id=None, user_name=None, client_t
     if "how are you" in text or "how r u" in text:
         return random.choice(HOW_ARE_YOU_RESPONSES)
 
-    # Recommendation requests
-    if any(w in text for w in ("suggest", "recommend", "what to watch", "pick a movie")):
-        if user_id:
-            prefs = _get_user_preferences(user_id)
-            if prefs.get("favorite_genres"):
-                genre = prefs["favorite_genres"][0]
-                return f"I'd love to suggest something! 😊 Since you enjoy {genre} films, tell me your current mood and I'll find the perfect match!"
-        return random.choice(RECOMMEND_PROMPTS)
+
 
     # Emotional intelligence and Empathetic responses (Sad, Lonely, Stressed, Heartbroken, Demotivated, Feeling low)
     detected_emotion = _detect_emotion(text)
@@ -2194,24 +2216,94 @@ def _chatbot_reply(message, mood, region, user_id=None, user_name=None, client_t
         
         return f"{empathy_msg}\n\nHere are some movies I think might help:\n{rec_str}{therapist_disclaimer}"
 
-    # Genre recommendations with personalization
+    # Genre recommendations with personalization and database search
     genre_words = {
-        "action": "Try 'Baahubali' or 'Sholay' for epic action in your region!",
-        "comedy": "'3 Idiots' and 'PK' are comedy gold — perfect for a laugh! 😂",
-        "romance": "'DDLJ' is the ultimate romance — still unbeatable! ❤️",
-        "thriller": "'Andhadhun' and 'Drishyam' will keep you on the edge! 😱",
-        "horror": "For chills, 'Tumbbad' delivers atmosphere and scares! 👻",
-        "sci-fi": "'Inception' bends minds beautifully — a must-watch! 🚀",
-        "drama": "'Pather Panchali' is a masterpiece of Indian cinema — deeply moving.",
-        "animation": "'Spirited Away' is magical — perfect for any mood!",
+        "action": "Action",
+        "comedy": "Comedy",
+        "romance": "Romance",
+        "thriller": "Thriller",
+        "horror": "Horror",
+        "sci-fi": "Sci-Fi",
+        "drama": "Drama",
+        "animation": "Animation",
     }
-    for genre, reply in genre_words.items():
-        if genre in text:
+    detected_genre = None
+    for kw, genre_name in genre_words.items():
+        if kw in text:
+            detected_genre = genre_name
+            break
+
+    if detected_genre:
+        target_region = region or "International"
+        suggested_movies = []
+        try:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute(
+                "SELECT * FROM movies WHERE region = ? OR region = 'International' LIMIT 100", 
+                (target_region,)
+            )
+            movies = [dict(row) for row in c.fetchall()]
+            conn.close()
+            
+            for m in movies:
+                try:
+                    m_genres = json.loads(m["genre"]) if isinstance(m["genre"], str) and m["genre"].startswith('[') else ([m["genre"]] if m["genre"] else [])
+                except:
+                    m_genres = []
+                if any(detected_genre.lower() == mg.lower() for mg in m_genres):
+                    suggested_movies.append(m)
+        except Exception as query_err:
+            print(f"[ERROR] Chatbot failed querying genre movies: {query_err}")
+
+        # Sort top-rated first
+        suggested_movies.sort(key=lambda m: m.get("rating") or 0.0, reverse=True)
+
+        if suggested_movies:
+            selected = suggested_movies[:3]
+            rec_details = []
+            for sm in selected:
+                rating = f" (Rating: {sm['rating']}/10)" if sm.get('rating') else ""
+                rec_details.append(f"• *{sm['title']}*{rating} — {sm.get('overview') or 'A great film to watch.'}")
+            rec_str = "\n".join(rec_details)
+            
+            pref_msg = ""
             if user_id:
                 prefs = _get_user_preferences(user_id)
-                if genre.capitalize() in prefs.get("favorite_genres", []):
-                    return f"Great taste! 🎬 Since you love {genre} films, {reply}"
+                if detected_genre in prefs.get("favorite_genres", []):
+                    pref_msg = f"Since you frequently watch {detected_genre.lower()} movies, I "
+                else:
+                    pref_msg = "I "
+            else:
+                pref_msg = "I "
+                
+            return f"Great taste! 🎬 {pref_msg}found some top-rated *{detected_genre}* movies in your region:\n\n{rec_str}"
+        else:
+            # Fallback
+            fallback_replies = {
+                "action": "Try 'Baahubali' or 'Sholay' for epic action in your region!",
+                "comedy": "'3 Idiots' and 'PK' are comedy gold — perfect for a laugh! 😂",
+                "romance": "'DDLJ' is the ultimate romance — still unbeatable! ❤️",
+                "thriller": "'Andhadhun' and 'Drishyam' will keep you on the edge! 😱",
+                "horror": "For chills, 'Tumbbad' delivers atmosphere and scares! 👻",
+                "sci-fi": "'Inception' bends minds beautifully — a must-watch! 🚀",
+                "drama": "'Pather Panchali' is a masterpiece of Indian cinema — deeply moving.",
+                "animation": "'Spirited Away' is magical — perfect for any mood!",
+            }
+            reply = fallback_replies.get(detected_genre.lower(), "Enjoy the show!")
+            if user_id:
+                prefs = _get_user_preferences(user_id)
+                if detected_genre in prefs.get("favorite_genres", []):
+                    return f"Great taste! 🎬 Since you love {detected_genre.lower()} films, {reply}"
             return f"Great taste! 🎬 {reply}"
+    # Generic recommendation requests
+    if any(w in text for w in ("suggest", "recommend", "what to watch", "pick a movie")):
+        if user_id:
+            prefs = _get_user_preferences(user_id)
+            if prefs.get("favorite_genres"):
+                genre = prefs["favorite_genres"][0]
+                return f"I'd love to suggest something! 😊 Since you enjoy {genre} films, tell me your current mood and I'll find the perfect match!"
+        return random.choice(RECOMMEND_PROMPTS)
 
     # Thank you
     if "thank" in text:
@@ -2230,6 +2322,7 @@ def _chatbot_reply(message, mood, region, user_id=None, user_name=None, client_t
 
 
 @app.route("/submit-review", methods=["POST"])
+@csrf.exempt
 @login_required
 def submit_review():
     try:
@@ -2454,6 +2547,7 @@ def get_reviews():
 
 
 @app.route("/delete-review", methods=["POST"])
+@csrf.exempt
 @login_required
 def delete_review():
     try:
@@ -2495,6 +2589,7 @@ def delete_review():
 
 
 @app.route("/chatbot", methods=["POST"])
+@csrf.exempt
 @login_required
 @rate_limit_chatbot
 def chatbot():
