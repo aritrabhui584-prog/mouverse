@@ -1,0 +1,767 @@
+/* ============================================================================
+   MOUMI - AI Mascot Companion for Mouverse AI
+   ============================================================================ */
+
+/* Moumi Container - Integrated with Chatbot */
+.moumi-container {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: auto;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Moumi in Chat FAB (when chat is closed) */
+@keyframes moumiFabFloat {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-5px) scale(1.03);
+  }
+}
+
+.moumi-in-fab {
+  position: absolute !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 42px;
+  z-index: 1001;
+  animation: moumiFabFloat 3.5s ease-in-out infinite;
+}
+
+/* Moumi in Chat Header (when chat is open) */
+.moumi-in-header {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .moumi-in-fab {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .moumi-in-header {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Chat Header layout info */
+.chat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Chat FAB close icon style */
+.chat-fab-close-icon {
+  font-size: 1.5rem;
+  color: #fff;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+.chat-fab.chat-open .chat-fab-close-icon {
+  transform: rotate(90deg);
+}
+
+/* Moumi SVG */
+.moumi-character {
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.moumi-character:hover {
+  transform: scale(1.1);
+}
+
+/* State-specific glowing neon drop-shadows */
+.moumi-state-idle .moumi-character {
+  filter: drop-shadow(0 8px 24px rgba(0, 212, 255, 0.5));
+}
+
+.moumi-state-happy .moumi-character {
+  filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.75));
+}
+
+@keyframes excitedRainbowGlow {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.75)); }
+  33% { filter: drop-shadow(0 0 30px rgba(255, 0, 128, 0.85)); }
+  66% { filter: drop-shadow(0 0 25px rgba(157, 78, 221, 0.75)); }
+}
+
+.moumi-state-excited .moumi-character {
+  animation: excitedRainbowGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes thinkingPurpleGlow {
+  0%, 100% { filter: drop-shadow(0 0 15px rgba(157, 78, 221, 0.45)); }
+  50% { filter: drop-shadow(0 0 25px rgba(157, 78, 221, 0.85)); }
+}
+
+.moumi-state-thinking .moumi-character {
+  animation: thinkingPurpleGlow 2s ease-in-out infinite;
+}
+
+.moumi-state-supportive .moumi-character,
+.moumi-state-sad .moumi-character {
+  filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.65));
+}
+
+.moumi-state-calm .moumi-character {
+  filter: drop-shadow(0 0 20px rgba(46, 196, 182, 0.65));
+}
+
+/* Chat FAB styling for Moumi */
+@keyframes rotateGlow {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes fabEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(50px);
+  }
+  70% {
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.chat-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(0, 212, 255, 0.4);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  z-index: 999;
+  animation: fabEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.chat-fab::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--cyan), #9d4edd, #0077b6, var(--cyan));
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  animation: rotateGlow 3s linear infinite;
+  opacity: 0.85;
+  filter: blur(4px);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.chat-fab.chat-open::before {
+  opacity: 0;
+}
+
+.chat-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 36px rgba(0, 212, 255, 0.7);
+}
+
+.chat-fab:active {
+  transform: scale(0.92);
+}
+
+@keyframes moumiFabRingPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.chat-fab-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  opacity: 0.6;
+  animation: moumiFabRingPulse 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  pointer-events: none;
+}
+
+/* Chat message styling for Moumi */
+.chat-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  animation: messageSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes messageSlideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-message-moumi {
+  align-self: flex-start;
+}
+
+.chat-message-user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  animation: messageSlideInUser 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes messageSlideInUser {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.chat-message-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.chat-message-content {
+  flex: 1;
+  max-width: 80%;
+}
+
+.chat-message-text {
+  background: var(--cyan-soft);
+  border: 1px solid var(--cyan-border);
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+}
+
+.chat-message-text:hover {
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.chat-message-user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.chat-message-user .chat-message-text {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  border-bottom-right-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.chat-message-user .chat-message-text:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Typing indicator in chat */
+.chat-message.typing-indicator {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.chat-message.typing-indicator .chat-message-content {
+  padding: 0;
+}
+
+.chat-message.typing-indicator .chat-message-text {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+  background: var(--cyan-soft);
+  border: 1px solid var(--cyan-border);
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-message.typing-indicator .typing-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--cyan);
+  border-radius: 50%;
+  animation: typingDot 1.4s infinite;
+}
+
+.chat-message.typing-indicator .typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chat-message.typing-indicator .typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Animation States */
+
+/* Idle State - Gentle floating */
+@keyframes moumiFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+.moumi-state-idle .moumi-body,
+.moumi-state-idle .moumi-head {
+  animation: moumiFloat 3s ease-in-out infinite;
+}
+
+/* Breathing animation */
+@keyframes moumiBreathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.moumi-state-idle .moumi-body {
+  animation: moumiBreathe 4s ease-in-out infinite, moumiFloat 3s ease-in-out infinite;
+}
+
+/* Eye blinking */
+@keyframes moumiBlink {
+  0%, 90%, 100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+  95% {
+    opacity: 1;
+    transform: scaleY(0.1);
+  }
+}
+
+.moumi-eyelid-left,
+.moumi-eyelid-right {
+  animation: moumiBlink 4s ease-in-out infinite;
+}
+
+.moumi-eyelid-right {
+  animation-delay: 0.1s;
+}
+
+/* Thinking State - Head tilt and sparkles */
+@keyframes moumiThinkTilt {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-8deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+
+.moumi-state-thinking .moumi-head {
+  animation: moumiThinkTilt 2s ease-in-out infinite;
+}
+
+@keyframes moumiSparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.moumi-state-thinking .moumi-think-sparkles {
+  opacity: 1;
+}
+
+.moumi-state-thinking .moumi-think-sparkles circle {
+  animation: moumiSparkle 1.5s ease-in-out infinite;
+}
+
+.moumi-state-thinking .moumi-think-sparkles circle:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.moumi-state-thinking .moumi-think-sparkles circle:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Happy State - Smile and bounce */
+@keyframes moumiHappyBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.moumi-state-happy .moumi-body,
+.moumi-state-happy .moumi-head {
+  animation: moumiHappyBounce 0.8s ease-in-out infinite;
+}
+
+.moumi-state-happy .moumi-smile {
+  d: path("M 82 85 Q 100 100 118 85");
+  stroke-width: 4;
+}
+
+.moumi-state-happy .moumi-cheek-left,
+.moumi-state-happy .moumi-cheek-right {
+  opacity: 0.8;
+  r: 12;
+}
+
+/* Excited State - Celebration with star */
+@keyframes moumiExcitedBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-15px) scale(1.05);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.02);
+  }
+  75% {
+    transform: translateY(-18px) scale(1.08);
+  }
+}
+
+.moumi-state-excited .moumi-body,
+.moumi-state-excited .moumi-head {
+  animation: moumiExcitedBounce 0.6s ease-in-out infinite;
+}
+
+.moumi-state-excited .moumi-star-glow {
+  opacity: 1;
+  animation: moumiSparkle 0.8s ease-in-out infinite;
+}
+
+.moumi-state-excited .moumi-smile {
+  d: path("M 80 83 Q 100 102 120 83");
+  stroke-width: 4;
+}
+
+/* Sad State - Gentle supportive expression */
+.moumi-state-sad .moumi-body,
+.moumi-state-sad .moumi-head {
+  animation: none;
+  transform: translateY(5px);
+}
+
+.moumi-state-sad .moumi-smile {
+  d: path("M 88 92 Q 100 88 112 92");
+  stroke-width: 2;
+}
+
+.moumi-state-sad .moumi-cheek-left,
+.moumi-state-sad .moumi-cheek-right {
+  opacity: 0.3;
+}
+
+/* Recommendation State - Points toward cards */
+@keyframes moumiPoint {
+  0%, 100% {
+    transform: rotate(0deg) translateX(0);
+  }
+  50% {
+    transform: rotate(-15deg) translateX(10px);
+  }
+}
+
+.moumi-state-recommendation .moumi-body {
+  animation: moumiPoint 1.5s ease-in-out infinite;
+}
+
+.moumi-state-recommendation .moumi-star-glow {
+  opacity: 0.8;
+}
+
+/* Speech Bubble */
+.moumi-speech-bubble {
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.moumi-speech-bubble.visible {
+  opacity: 1;
+}
+
+.moumi-speech-text {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #1a1a2e;
+}
+
+/* Film reel animation */
+@keyframes moumiFilmReel {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.moumi-film-reel-left,
+.moumi-film-reel-right {
+  transform-origin: center;
+}
+
+.moumi-state-idle .moumi-film-reel-left {
+  animation: moumiFilmReel 20s linear infinite;
+}
+
+.moumi-state-idle .moumi-film-reel-right {
+  animation: moumiFilmReel 20s linear infinite reverse;
+}
+
+/* Popcorn animation */
+@keyframes moumiPopcorn {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.moumi-state-happy .moumi-popcorn,
+.moumi-state-excited .moumi-popcorn {
+  animation: moumiPopcorn 0.5s ease-in-out infinite;
+}
+
+/* Accessibility: Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .moumi-character,
+  .moumi-body,
+  .moumi-head,
+  .moumi-eyelid-left,
+  .moumi-eyelid-right,
+  .moumi-think-sparkles circle,
+  .moumi-star-glow,
+  .moumi-film-reel-left,
+  .moumi-film-reel-right,
+  .moumi-popcorn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Moumi Welcome Animation */
+@keyframes moumiWelcome {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(50px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.moumi-container.welcome-animation .moumi-character {
+  animation: moumiWelcome 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Moumi typing indicator */
+.moumi-typing-indicator {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--cyan-soft);
+  border: 1px solid var(--cyan-border);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.moumi-typing-indicator.active {
+  display: flex;
+}
+
+.moumi-typing-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--cyan);
+  border-radius: 50%;
+  animation: typingDot 1.4s infinite;
+}
+
+.moumi-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.moumi-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Moumi interaction feedback */
+.moumi-character:active {
+  transform: scale(0.95);
+}
+
+/* Moumi glow effect on hover */
+.moumi-character:hover {
+  filter: drop-shadow(0 12px 32px rgba(0, 212, 255, 0.6));
+}
+
+/* Mobile responsiveness for chat FAB */
+@media (max-width: 768px) {
+  .chat-fab {
+    width: 50px;
+    height: 50px;
+    bottom: 16px;
+    right: 16px;
+  }
+  
+  .chat-message-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .chat-message-text {
+    font-size: 0.85rem;
+    padding: 10px 14px;
+  }
+}
+
+/* Additional Dynamic Expressions */
+
+/* Stressed/Calm State - Slow breathing */
+@keyframes moumiCalm {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.moumi-state-stressed .moumi-body,
+.moumi-state-calm .moumi-body {
+  animation: moumiCalm 3s ease-in-out infinite;
+}
+
+/* Curious State - Tilted curiosity */
+@keyframes moumiCurious {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+.moumi-state-curious .moumi-head {
+  animation: moumiCurious 1.5s ease-in-out infinite;
+}
+
+/* Nostalgic State - Slow fade with sepia */
+@keyframes moumiNostalgic {
+  0%, 100% {
+    transform: translateY(0);
+    filter: sepia(0.3);
+  }
+  50% {
+    transform: translateY(-3px);
+    filter: sepia(0.5);
+  }
+}
+
+.moumi-state-nostalgic .moumi-character {
+  animation: moumiNostalgic 4s ease-in-out infinite;
+}
+
+/* Surprised State - Quick pop */
+@keyframes moumiSurprised {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.moumi-state-surprised .moumi-character {
+  animation: moumiSurprised 0.5s ease-in-out infinite;
+}
+
+/* Supportive State - Gentle heart glow */
+@keyframes moumiHeartGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.moumi-state-supportive .moumi-heart {
+  animation: moumiHeartGlow 2s ease-in-out infinite;
+}

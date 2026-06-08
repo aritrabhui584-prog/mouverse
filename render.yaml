@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: mouverse-ai
+    env: python
+    runtime: python-3.11
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend.app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        value: ""
+      - key: OMDB_API_KEY
+        value: ""
+      - key: TMDB_API_KEY
+        value: ""
+      - key: TWILIO_ACCOUNT_SID
+        value: ""
+      - key: TWILIO_AUTH_TOKEN
+        value: ""
+      - key: TWILIO_PHONE_NUMBER
+        value: ""
+      - key: MAIL_SERVER
+        value: "smtp.gmail.com"
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USE_TLS
+        value: "True"
+      - key: MAIL_USERNAME
+        value: ""
+      - key: MAIL_PASSWORD
+        value: ""
+      - key: MAIL_DEFAULT_SENDER
+        value: ""
+      - key: FLASK_ENV
+        value: "production"
+    autoDeploy: true

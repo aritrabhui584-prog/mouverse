@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mouverse AI — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #00d4ff;
+            --cyan-dark: #0099bb;
+            --bg: #050a14;
+            --glass: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --text: #f0f0f0;
+            --muted: #666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .film-strip {
+            position: fixed;
+            width: 60px;
+            opacity: 0.06;
+            z-index: 1;
+            animation: floatStrip linear infinite;
+        }
+        .film-strip svg { width: 100%; }
+
+        @keyframes floatStrip {
+            0%   { transform: translateY(110vh) rotate(var(--rot)); opacity: 0; }
+            10%  { opacity: 0.06; }
+            90%  { opacity: 0.06; }
+            100% { transform: translateY(-110vh) rotate(var(--rot)); opacity: 0; }
+        }
+
+        .spotlight {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,212,255,0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            transition: left 0.1s ease, top 0.1s ease;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+            z-index: 2;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan {
+            0%   { top: -2px; opacity: 0; }
+            5%   { opacity: 1; }
+            95%  { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-size: 128px;
+            pointer-events: none;
+            animation: noiseShift 0.5s steps(2) infinite;
+        }
+        @keyframes noiseShift {
+            0%   { background-position: 0 0; }
+            25%  { background-position: 10px -10px; }
+            50%  { background-position: -5px 5px; }
+            75%  { background-position: 8px 3px; }
+            100% { background-position: 0 0; }
+        }
+
+        .ticker-wrap {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 36px;
+            background: rgba(0,212,255,0.06);
+            border-top: 1px solid rgba(0,212,255,0.12);
+            overflow: hidden;
+            z-index: 3;
+        }
+        .ticker {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+            gap: 60px;
+        }
+        .ticker span {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: rgba(0,212,255,0.45);
+        }
+        .ticker-dot {
+            color: var(--cyan) !important;
+        }
+        @keyframes ticker {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 4fr 6fr;
+            align-items: center;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px 24px;
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        .branding {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            animation: fadeInLeft 0.8s ease both;
+        }
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            filter: drop-shadow(0 0 12px rgba(0,212,255,0.6));
+            animation: pulse 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 12px rgba(0,212,255,0.6)); }
+            50%       { filter: drop-shadow(0 0 24px rgba(0,212,255,0.9)); }
+        }
+
+        .logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 48px;
+            letter-spacing: 4px;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+        .logo-text span { color: var(--cyan); }
+
+        .tagline {
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .brand-desc {
+            font-size: 18px;
+            color: #b0b3b8;
+            line-height: 1.6;
+            max-width: 540px;
+        }
+
+        .feature-badges {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 10px;
+            max-width: 540px;
+        }
+
+        .badge-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .badge-item:hover {
+            background: rgba(0, 212, 255, 0.05);
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.15);
+        }
+
+        .badge-check {
+            color: var(--cyan);
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            background: rgba(0, 212, 255, 0.12);
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 212, 255, 0.25);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 500px;
+            justify-self: center;
+            align-self: center;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            animation: fadeInRight 0.8s ease 0.2s both;
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 28px;
+            gap: 4px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+        .tab.active {
+            background: var(--cyan);
+            color: white;
+        }
+        .tab:hover:not(.active) { color: #ccc; }
+
+        .form { display: none; }
+        .form.active { display: block; }
+
+        .input-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            font-size: 15px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .input-group input:focus {
+            border-color: rgba(0,212,255,0.5);
+            background: rgba(0,212,255,0.04);
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+        }
+        .input-group input::placeholder { color: #333; }
+
+        .input-group input:focus ~ .focus-line { width: 100%; }
+        .focus-line {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 2px;
+            width: 0;
+            background: var(--cyan);
+            transition: width 0.3s;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0099bb, #00d4ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,212,255,0.35); }
+        .btn:hover::after { width: 300px; height: 300px; }
+        .btn:active { transform: translateY(0); }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            color: #888;
+        }
+        .btn-ghost:hover { border-color: rgba(0,212,255,0.4); color: white; background: rgba(0,212,255,0.05); box-shadow: none; }
+
+        .msg {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .msg.error   { background: rgba(229,9,20,0.1); border: 1px solid rgba(229,9,20,0.3); color: #ff6b6b; }
+        .msg.success { background: rgba(0,200,100,0.1); border: 1px solid rgba(0,200,100,0.3); color: #4dffaa; }
+
+        .toast {
+            position: fixed;
+            bottom: 50px; right: 24px;
+            background: #111;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--cyan);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: white;
+            z-index: 100;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .toast.show { transform: translateX(0); }
+
+        .terms {
+            font-size: 11px;
+            color: #444;
+            text-align: center;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+        .terms a { color: var(--cyan); text-decoration: none; }
+
+        @media (max-width: 1200px) {
+            .wrapper {
+                gap: 40px;
+                max-width: 1000px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            body { overflow-y: auto; }
+            .wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 50px;
+                padding: 60px 24px;
+                max-width: 600px;
+                min-height: auto;
+            }
+            .branding {
+                text-align: center;
+                align-items: center;
+            }
+            .logo-wrap {
+                justify-content: center;
+            }
+            .brand-desc {
+                max-width: 100%;
+            }
+            .feature-badges {
+                max-width: 100%;
+                width: 100%;
+            }
+            .card {
+                justify-self: auto;
+                align-self: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .wrapper {
+                gap: 40px;
+                padding: 40px 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .wrapper {
+                width: 92%;
+                padding: 30px 0 60px;
+                gap: 30px;
+            }
+            .feature-badges {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .logo-text {
+                font-size: 36px;
+            }
+            .tagline {
+                font-size: 13px;
+            }
+            .brand-desc {
+                font-size: 15px;
+            }
+            .card {
+                padding: 24px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="spotlight" id="spotlight"></div>
+<div class="scanline"></div>
+<div class="noise"></div>
+<div id="filmStrips"></div>
+<div class="ticker-wrap">
+    <div class="ticker" id="ticker"></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="wrapper">
+    <div class="branding">
+        <div class="logo-wrap">
+            <svg class="logo-icon" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="portalGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#00d4ff"/>
+                        <stop offset="100%" stop-color="#0066aa"/>
+                    </radialGradient>
+                </defs>
+                <circle cx="26" cy="26" r="24" stroke="#00d4ff" stroke-width="1.5" opacity="0.3"/>
+                <circle cx="26" cy="26" r="18" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+                <path d="M26 10 Q36 18 26 26 Q16 34 26 42" stroke="#00d4ff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M10 26 Q18 16 26 26 Q34 36 42 26" stroke="#00d4ff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <circle cx="26" cy="26" r="3" fill="url(#portalGrad)"/>
+                <circle cx="14" cy="14" r="1.2" fill="#00d4ff" opacity="0.7"/>
+                <circle cx="38" cy="12" r="0.8" fill="#00d4ff" opacity="0.5"/>
+                <circle cx="40" cy="38" r="1" fill="#00d4ff" opacity="0.6"/>
+                <circle cx="12" cy="36" r="0.8" fill="#00d4ff" opacity="0.4"/>
+                <circle cx="26" cy="6"  r="1" fill="white" opacity="0.5"/>
+                <circle cx="44" cy="22" r="0.8" fill="white" opacity="0.4"/>
+                <circle cx="8"  cy="30" r="1" fill="white" opacity="0.3"/>
+            </svg>
+            <div class="logo-text">MOUVERSE <span>AI</span></div>
+        </div>
+        <div class="tagline">✦ AI-Powered Regional Movie Discovery Platform</div>
+        <p class="brand-desc">
+            Discover movies tailored to your mood, language, region and personal taste.
+        </p>
+        <div class="feature-badges">
+            <div class="badge-item">
+                <span class="badge-check">✓</span>
+                <span class="badge-text">AI Powered</span>
+            </div>
+            <div class="badge-item">
+                <span class="badge-check">✓</span>
+                <span class="badge-text">Regional Cinema</span>
+            </div>
+            <div class="badge-item">
+                <span class="badge-check">✓</span>
+                <span class="badge-text">Mood Based Recommendations</span>
+            </div>
+            <div class="badge-item">
+                <span class="badge-check">✓</span>
+                <span class="badge-text">10K+ Movies</span>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Sign In</div>
+            <div class="tab" onclick="switchTab('register')">Register</div>
+        </div>
+        <div class="msg error" id="errorMsg"></div>
+        <div class="msg success" id="successMsg"></div>
+        <div class="form active" id="loginForm">
+            <div class="input-group">
+                <label>Email</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉</span>
+                    <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+                    <div class="focus-line"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                    <div class="focus-line"></div>
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="handleLogin()">Enter the Universe →</button>
+            <button type="button" class="btn btn-ghost" onclick="switchTab('register')">Create Account</button>
+        </div>
+        <div class="form" id="registerForm">
+            <div class="input-group">
+                <label>Full Name</label>
+                <div class="input-wrap">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="regName" placeholder="Your name" autocomplete="name">
+                    <div class="focus-line"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Email</label>
+                <div class="input-wrap">
+                    <span class="input-icon">✉</span>
+                    <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+                    <div class="focus-line"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Phone</label>
+                <div class="input-wrap">
+                    <span class="input-icon">📱</span>
+                    <input type="tel" id="regPhone" placeholder="+91 XXXXXXXXXX" autocomplete="tel">
+                    <div class="focus-line"></div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrap">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="regPassword" placeholder="Min 6 characters" autocomplete="new-password">
+                    <div class="focus-line"></div>
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="handleRegister()">Register & Get OTP →</button>
+            <div class="terms">
+                By registering you agree to our <a href="#">Terms</a> & <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+{% for category, message in messages %}
+    showFlashMessage({{ category|tojson }}, {{ message|tojson }});
+{% endfor %}
+});
+</script>
+{% endif %}
+{% endwith %}
+
+<script>
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width  = window.innerWidth;
+canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initStars();
+});
+
+let stars = [], shootingStars = [], mouse = { x: canvas.width/2, y: canvas.height/2 };
+
+function initStars() {
+    stars = [];
+    for (let i = 0; i < 220; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.5 + 0.2,
+            alpha: Math.random() * 0.7 + 0.1,
+            speed: Math.random() * 0.3 + 0.05,
+            twinkleSpeed: Math.random() * 0.02 + 0.005,
+            twinkleDir: Math.random() > 0.5 ? 1 : -1,
+            color: Math.random() > 0.85 ? '#00d4ff' : 'white'
+        });
+    }
+}
+initStars();
+
+function spawnShootingStar() {
+    shootingStars.push({
+        x: Math.random() * canvas.width * 0.7,
+        y: Math.random() * canvas.height * 0.4,
+        len: Math.random() * 120 + 60,
+        speed: Math.random() * 8 + 6,
+        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+        alpha: 1,
+        life: 0
+    });
+}
+setInterval(spawnShootingStar, 3000);
+
+const CSRF_TOKEN = {{ csrf_token()|tojson }};
+const LOGIN_URL = {{ url_for('auth.login')|tojson }};
+const REGISTER_URL = {{ url_for('auth.register')|tojson }};
+
+function animate() {
+    ctx.fillStyle = 'rgba(6, 6, 6, 0.25)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (const s of stars) {
+        s.alpha += s.twinkleSpeed * s.twinkleDir;
+        if (s.alpha <= 0.1 || s.alpha >= 0.8) s.twinkleDir *= -1;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = s.color === '#00d4ff'
+            ? `rgba(0, 212, 255, ${s.alpha})`
+            : `rgba(255, 255, 255, ${s.alpha})`;
+        ctx.fill();
+        s.y -= s.speed;
+        if (s.y < -5) {
+            s.y = canvas.height + 5;
+            s.x = Math.random() * canvas.width;
+        }
+    }
+
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const ss = shootingStars[i];
+        const dx = Math.cos(ss.angle) * ss.speed;
+        const dy = Math.sin(ss.angle) * ss.speed;
+        const grad = ctx.createLinearGradient(ss.x, ss.y, ss.x - dx * 3, ss.y - dy * 3);
+        grad.addColorStop(0, `rgba(0, 212, 255, ${ss.alpha * 0.3})`);
+        grad.addColorStop(1, 'transparent');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(ss.x, ss.y);
+        ctx.lineTo(ss.x - Math.cos(ss.angle) * ss.len, ss.y - Math.sin(ss.angle) * ss.len);
+        ctx.stroke();
+        ss.x += dx;
+        ss.y += dy;
+        ss.life++;
+        ss.alpha -= 0.02;
+        if (ss.life > 40 || ss.alpha <= 0) shootingStars.splice(i, 1);
+    }
+
+    requestAnimationFrame(animate);
+}
+animate();
+
+const spotlight = document.getElementById('spotlight');
+document.addEventListener('mousemove', (e) => {
+    spotlight.style.left = e.clientX + 'px';
+    spotlight.style.top = e.clientY + 'px';
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+const filmSVG = `<svg viewBox="0 0 60 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="60" height="200" fill="#111" rx="4"/>
+  <rect x="8" y="0" width="44" height="18" fill="#1a1a1a"/>
+  <rect x="8" y="182" width="44" height="18" fill="#1a1a1a"/>
+  <rect x="14" y="28" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="58" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="88" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="118" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="148" width="32" height="22" fill="#222" rx="2"/>
+</svg>`;
+
+const filmContainer = document.getElementById('filmStrips');
+for (let i = 0; i < 6; i++) {
+    const el = document.createElement('div');
+    el.className = 'film-strip';
+    el.innerHTML = filmSVG;
+    el.style.left = `${8 + i * 16}%`;
+    el.style.setProperty('--rot', `${(Math.random() - 0.5) * 40}deg`);
+    el.style.animationDuration = `${18 + Math.random() * 14}s`;
+    el.style.animationDelay = `${Math.random() * 12}s`;
+    filmContainer.appendChild(el);
+}
+
+const movieTitles = [
+    'INCEPTION', 'INTERSTELLAR', 'THE DARK KNIGHT', 'PULP FICTION',
+    'PARASITE', 'RRR', 'DUNE', 'OPPENHEIMER', 'LA LA LAND',
+    'THE GODFATHER', 'FORREST GUMP', 'AVATAR', 'TITANIC', 'JOKER'
+];
+const ticker = document.getElementById('ticker');
+const tickerItems = [...movieTitles, ...movieTitles].map((t) => {
+    const span = document.createElement('span');
+    span.textContent = t;
+    const dot = document.createElement('span');
+    dot.className = 'ticker-dot';
+    dot.textContent = ' ✦ ';
+    return [span, dot];
+}).flat();
+tickerItems.forEach((el) => ticker.appendChild(el));
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+    document.querySelectorAll('.form').forEach((f) => f.classList.remove('active'));
+    if (tab === 'login') {
+        document.querySelector('.tab:first-child').classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+    } else {
+        document.querySelector('.tab:last-child').classList.add('active');
+        document.getElementById('registerForm').classList.add('active');
+    }
+    hideMessages();
+}
+
+function hideMessages() {
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'none';
+}
+
+function showMsg(type, text) {
+    hideMessages();
+    const el = document.getElementById(type === 'error' ? 'errorMsg' : 'successMsg');
+    el.textContent = text;
+    el.style.display = 'block';
+}
+
+function showFlashMessage(category, text) {
+    const map = { danger: 'error', error: 'error', success: 'success', info: 'success', warning: 'error' };
+    showMsg(map[category] || 'error', text);
+    if (category === 'info' || category === 'success') showToast(text);
+}
+
+function showToast(text) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+function postAuth(url, fields) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrf_token';
+    csrfInput.value = CSRF_TOKEN;
+    form.appendChild(csrfInput);
+
+    Object.entries(fields).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) {
+        showMsg('error', 'Please enter your email and password.');
+        return;
+    }
+    postAuth(LOGIN_URL, { email, password });
+}
+
+function handleRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const password = document.getElementById('regPassword').value;
+    if (!name || !email || !phone || !password) {
+        showMsg('error', 'Please fill in all registration fields.');
+        return;
+    }
+    if (password.length < 6) {
+        showMsg('error', 'Password must be at least 6 characters.');
+        return;
+    }
+    postAuth(REGISTER_URL, { name, email, phone, password });
+}
+
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('regPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleRegister();
+});
+
+</script>
+</body>
+</html>

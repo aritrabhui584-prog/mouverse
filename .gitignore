@@ -1,6 +1,9 @@
 # Environment
 .env
-.env.*
+.env.local
+.env.production
+.venv/
+flask_session/
 
 # IDE
 .vscode/
@@ -13,9 +16,20 @@ __pycache__/
 
 # Databases
 database/*.db
+database/*.db-shm
+database/*.db-wal
+database/*.sqlite
 
 # Node
 node_modules/
 
 # Others
 .DS_Store
+*.log
+scratch/
+
+# Large Datasets and Cache
+database/MOUVERSE_2.csv
+database/movies_extended.csv
+database/tmdb_cache.json
+database/ml_cache/

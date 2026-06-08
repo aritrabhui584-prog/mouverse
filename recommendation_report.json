@@ -1,0 +1,323 @@
+{
+  "timestamp": "2026-06-08 19:46:58",
+  "inputs": {
+    "mood": "happy",
+    "genre": "Action",
+    "language": "",
+    "region": "USA",
+    "min_rating": 0,
+    "max_runtime": 240
+  },
+  "pipeline_trace": {
+    "total_movies_loaded": 79,
+    "after_region_filter": 30,
+    "after_language_filter": 30,
+    "after_genre_filter": 10,
+    "after_mood_filter": 1,
+    "after_rating_filter": 1,
+    "after_runtime_filter": 1,
+    "final_recommendation_count": 20
+  },
+  "most_restrictive_filter": "Region Filter (removed 49 movies)",
+  "movies_loaded": [
+    "Parasite",
+    "Spirited Away",
+    "Demon Slayer: Mugen Train",
+    "My Sassy Girl",
+    "The Dark Knight",
+    "Inception",
+    "The Shawshank Redemption",
+    "Interstellar",
+    "Fight Club",
+    "The Silence of the Lambs",
+    "Saving Private Ryan",
+    "The Departed",
+    "The King's Speech",
+    "Slumdog Millionaire",
+    "Love Actually",
+    "The Theory of Everything",
+    "Dunkirk",
+    "1917",
+    "The Imitation Game",
+    "Atonement",
+    "The Grand Budapest Hotel",
+    "Skyfall",
+    "Lagaan",
+    "Taare Zameen Par",
+    "Swades",
+    "Chak De! India",
+    "Munna Bhai M.B.B.S.",
+    "The Godfather",
+    "Forrest Gump",
+    "Pulp Fiction",
+    "Goodfellas",
+    "The Lion King",
+    "Avengers Endgame",
+    "Titanic",
+    "The Matrix",
+    "Gladiator",
+    "Roma",
+    "The Lord of the Rings: The Fellowship of the Ring",
+    "The Dark Knight Rises",
+    "Pather Panchali",
+    "Chokher Bali",
+    "Apur Sansar",
+    "Charulata",
+    "Mahanagar",
+    "Bhooter Bhabishyat",
+    "Aparajito",
+    "Nayak",
+    "3 Idiots",
+    "Dilwale Dulhania Le Jayenge",
+    "Sholay",
+    "Zindagi Na Milegi Dobara",
+    "Dangal",
+    "Hera Pheri",
+    "Andaz Apna Apna",
+    "Welcome",
+    "Dhamaal",
+    "Bhool Bhulaiyaa",
+    "Garam Masala",
+    "Super Deluxe",
+    "Nayagan",
+    "Vikram Vedha",
+    "Jai Bhim",
+    "Anbe Sivam",
+    "Baahubali: The Beginning",
+    "Baahubali 2: The Conclusion",
+    "C/o Kancharapalem",
+    "RRR",
+    "Mahanati",
+    "Eega",
+    "Drishyam",
+    "Kumbalangi Nights",
+    "Kantara",
+    "777 Charlie",
+    "Sairat",
+    "Natsamrat",
+    "Court",
+    "Maula Jatt",
+    "Carry on Jatta",
+    "Qismat"
+  ],
+  "movies_filtered": [
+    {
+      "title": "Parasite",
+      "reason": "Region mismatch (Selected: USA, Movie Region: Korea)"
+    },
+    {
+      "title": "Spirited Away",
+      "reason": "Region mismatch (Selected: USA, Movie Region: Japan)"
+    },
+    {
+      "title": "Demon Slayer: Mugen Train",
+      "reason": "Region mismatch (Selected: USA, Movie Region: Japan)"
+    },
+    {
+      "title": "My Sassy Girl",
+      "reason": "Region mismatch (Selected: USA, Movie Region: Korea)"
+    },
+    {
+      "title": "Lagaan",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Taare Zameen Par",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Swades",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Chak De! India",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Munna Bhai M.B.B.S.",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Pather Panchali",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Chokher Bali",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Apur Sansar",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Charulata",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Mahanagar",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Bhooter Bhabishyat",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Aparajito",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Nayak",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "3 Idiots",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Dilwale Dulhania Le Jayenge",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Sholay",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Zindagi Na Milegi Dobara",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Dangal",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Hera Pheri",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Andaz Apna Apna",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Welcome",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Dhamaal",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Bhool Bhulaiyaa",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Garam Masala",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Super Deluxe",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Nayagan",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Vikram Vedha",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Jai Bhim",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Anbe Sivam",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Baahubali: The Beginning",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Baahubali 2: The Conclusion",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "C/o Kancharapalem",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "RRR",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Mahanati",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Eega",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Drishyam",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Kumbalangi Nights",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Kantara",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "777 Charlie",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Sairat",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Natsamrat",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Court",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Maula Jatt",
+      "reason": "Region mismatch (Selected: USA, Movie Region: Pakistan)"
+    },
+    {
+      "title": "Carry on Jatta",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    },
+    {
+      "title": "Qismat",
+      "reason": "Region mismatch (Selected: USA, Movie Region: India)"
+    }
+  ],
+  "recommendations": [
+    "Avengers Endgame",
+    "The Matrix",
+    "Inception",
+    "The Dark Knight",
+    "The Lord of the Rings: The Fellowship of the Ring",
+    "Dunkirk",
+    "Skyfall",
+    "1917",
+    "Gladiator",
+    "The Dark Knight Rises",
+    "The Shawshank Redemption",
+    "The Grand Budapest Hotel",
+    "The Lion King",
+    "Love Actually",
+    "Forrest Gump",
+    "Slumdog Millionaire",
+    "The Silence of the Lambs",
+    "Fight Club",
+    "Goodfellas",
+    "Pulp Fiction"
+  ]
+}

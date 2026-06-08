@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mouverse AI - Select Your Region</title>
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background: radial-gradient(circle at center, #1a0505 0%, #0a0a0a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="region-container">
+        <div class="auth-logo">
+            MOUVERSE <span>AI</span>
+        </div>
+        
+        <h2 class="region-title">Who's watching?</h2>
+        <p class="region-subtitle">Select your region to personalize recommendations with localized languages</p>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages" style="max-width: 600px; margin: 0 auto 20px;">
+                    {% for category, message in messages %}
+                        <div class="flash-alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Form for region submission -->
+        <form id="regionForm" action="{{ url_for('region.select_region') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" id="selectedRegion" name="region" value="">
+            
+            <div class="region-grid">
+                <!-- India Card -->
+                <div class="region-card {% if current_region == 'India' %}selected{% endif %}" onclick="submitRegion('India')">
+                    <div class="region-avatar">🇮🇳</div>
+                    <div class="region-name">India</div>
+                    <div class="region-langs">Hindi, Bengali, Tamil, Telugu, Marathi, Malayalam, Kannada...</div>
+                </div>
+                
+                <!-- USA Card -->
+                <div class="region-card {% if current_region == 'USA' %}selected{% endif %}" onclick="submitRegion('USA')">
+                    <div class="region-avatar">🇺🇸</div>
+                    <div class="region-name">USA</div>
+                    <div class="region-langs">English, Spanish</div>
+                </div>
+                
+                <!-- UK Card -->
+                <div class="region-card {% if current_region == 'UK' %}selected{% endif %}" onclick="submitRegion('UK')">
+                    <div class="region-avatar">🇬🇧</div>
+                    <div class="region-name">United Kingdom</div>
+                    <div class="region-langs">English</div>
+                </div>
+                
+                <!-- Korea Card -->
+                <div class="region-card {% if current_region == 'Korea' %}selected{% endif %}" onclick="submitRegion('Korea')">
+                    <div class="region-avatar">🇰🇷</div>
+                    <div class="region-name">Korea</div>
+                    <div class="region-langs">Korean</div>
+                </div>
+                
+                <!-- Japan Card -->
+                <div class="region-card {% if current_region == 'Japan' %}selected{% endif %}" onclick="submitRegion('Japan')">
+                    <div class="region-avatar">🇯🇵</div>
+                    <div class="region-name">Japan</div>
+                    <div class="region-langs">Japanese</div>
+                </div>
+                
+                <!-- Bangladesh Card -->
+                <div class="region-card {% if current_region == 'Bangladesh' %}selected{% endif %}" onclick="submitRegion('Bangladesh')">
+                    <div class="region-avatar">🇧🇩</div>
+                    <div class="region-name">Bangladesh</div>
+                    <div class="region-langs">Bengali, Urdu</div>
+                </div>
+                
+                <!-- Pakistan Card -->
+                <div class="region-card {% if current_region == 'Pakistan' %}selected{% endif %}" onclick="submitRegion('Pakistan')">
+                    <div class="region-avatar">🇵🇰</div>
+                    <div class="region-name">Pakistan</div>
+                    <div class="region-langs">Urdu, Punjabi</div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function submitRegion(regionName) {
+            document.getElementById('selectedRegion').value = regionName;
+            document.getElementById('regionForm').submit();
+        }
+    </script>
+</body>
+</html>

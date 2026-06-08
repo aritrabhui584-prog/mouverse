@@ -2,277 +2,419 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouverse AI - Premium Movie Recommendation Engine</title>
-    <!-- Style link -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mouverse AI — Cinematic Recommendations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
 </head>
-<body>
+<body
+    data-region="{{ region }}"
+    data-user-id="{{ user_id }}"
+    data-user-name="{{ user.name }}">
+
+    <!-- CINEMATIC VISUAL EFFECTS -->
+    <div class="cinematic-background">
+        <canvas id="cinematicCanvas"></canvas>
+    </div>
+    <div class="lighting-overlay"></div>
+
+    <!-- PAGE LOADER -->
+    <div id="pageLoader" class="page-loader" aria-live="polite" aria-busy="true">
+        <div class="loader-logo">
+            <svg class="portal-loader" viewBox="0 0 44 44" width="72" height="72" aria-hidden="true">
+                <defs>
+                    <radialGradient id="loaderPortalGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#00d4ff"/>
+                        <stop offset="100%" stop-color="#0044aa"/>
+                    </radialGradient>
+                </defs>
+                <g class="ring-outer">
+                    <circle cx="22" cy="22" r="20" stroke="#00d4ff" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="8 4"/>
+                </g>
+                <g class="ring-mid">
+                    <circle cx="22" cy="22" r="14" stroke="white" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="5 3"/>
+                </g>
+                <circle class="portal-glow" cx="22" cy="22" r="8" fill="url(#loaderPortalGrad)"/>
+                <circle cx="22" cy="22" r="2.5" fill="white"/>
+            </svg>
+        </div>
+        <p class="loader-text">Loading your cinematic universe...</p>
+    </div>
 
     <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="logo">
-            <img src="{{ url_for('static', filename='logo.png') }}" class="logo-img" alt="Mouverse Logo">
-            <span>Mouverse</span>
-        </div>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="#curator">Curator</a>
-            <a href="#recommendations">Recommendations</a>
+    <nav class="navbar" aria-label="Main navigation">
+        <a href="#home" class="navbar-brand">
+            <svg class="navbar-portal" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+                <defs>
+                    <radialGradient id="portalGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#00d4ff"/>
+                        <stop offset="100%" stop-color="#0044aa"/>
+                    </radialGradient>
+                </defs>
+                <g class="ring-outer">
+                    <circle cx="22" cy="22" r="20" stroke="#00d4ff" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="8 4"/>
+                </g>
+                <g class="ring-mid">
+                    <circle cx="22" cy="22" r="14" stroke="white" stroke-width="1" fill="none" opacity="0.5" stroke-dasharray="5 3"/>
+                </g>
+                <circle class="portal-glow" cx="22" cy="22" r="8" fill="url(#portalGrad)"/>
+                <circle cx="22" cy="22" r="2.5" fill="white"/>
+            </svg>
+            <span class="brand-text">MOUVERSE <span class="brand-ai">AI</span></span>
+        </a>
+
+        <input type="checkbox" id="navToggle" class="nav-toggle-input" aria-hidden="true">
+        <label for="navToggle" class="nav-hamburger" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </label>
+
+        <div class="navbar-menu">
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#curator">Browse</a>
+                <a href="#recommendations">Movies</a>
+            </div>
+            <div class="user-profile">
+                <span class="user-greeting">
+                    Hi, <strong>{{ user.name }}</strong>
+                    <span class="region-badge">{{ region }}</span>
+                </span>
+                <a href="{{ url_for('region.select_region') }}" class="nav-btn-action">Change Region</a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-logout">Sign Out</a>
+            </div>
         </div>
     </nav>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <h1>Unveil Your Next <span>Cinematic Adventure</span></h1>
-        <p>Our AI-powered movie curation engine reads through thousands of films, ratings, and runtime preferences to deliver customized recommendations tailored to your exact taste. No generic lists. Just pure cinema.</p>
-        <div class="hero-buttons">
-            <a href="#curator" class="primary-btn">Start Curation</a>
-            <a href="/" class="secondary-btn">Reset Filters</a>
-        </div>
-    </section>
-
-    <!-- FILTER SECTION (CURATOR) -->
-    <section class="filter-section reveal" id="curator">
-        <h2>Find Your <span>Vibe</span></h2>
-        <form action="/recommend" method="GET">
-            
-            <!-- Genre Buttons -->
-            <h3>Select Genre</h3>
-            <div class="genre-buttons">
-                <label>
-                    <input type="radio" name="genre" value="action" {% if selected_genre == 'action' or not selected_genre %}checked{% endif %}>
-                    <span>Action</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="adventure" {% if selected_genre == 'adventure' %}checked{% endif %}>
-                    <span>Adventure</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="comedy" {% if selected_genre == 'comedy' %}checked{% endif %}>
-                    <span>Comedy</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="drama" {% if selected_genre == 'drama' %}checked{% endif %}>
-                    <span>Drama</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="fantasy" {% if selected_genre == 'fantasy' %}checked{% endif %}>
-                    <span>Fantasy</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="horror" {% if selected_genre == 'horror' %}checked{% endif %}>
-                    <span>Horror</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="mystery" {% if selected_genre == 'mystery' %}checked{% endif %}>
-                    <span>Mystery</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="romance" {% if selected_genre == 'romance' %}checked{% endif %}>
-                    <span>Romance</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="sci-fi" {% if selected_genre == 'sci-fi' %}checked{% endif %}>
-                    <span>Sci-Fi</span>
-                </label>
-                <label>
-                    <input type="radio" name="genre" value="thriller" {% if selected_genre == 'thriller' %}checked{% endif %}>
-                    <span>Thriller</span>
-                </label>
-            </div>
-
-            <!-- Runtime Slider -->
-            <div class="slider-container">
-                <h3>Maximum Runtime: <span id="runtimeValue">{{ runtime }}</span> min</h3>
-                <input type="range" id="runtimeSlider" name="runtime" min="60" max="240" step="5" value="{{ runtime }}">
-            </div>
-
-            <!-- Rating Dropdown -->
-            <div class="slider-container" style="margin-top: 35px;">
-                <h3>Minimum IMDb Rating</h3>
-                <select name="rating">
-                    <option value="0" {% if rating == 0 %}selected{% endif %}>All Ratings (Any)</option>
-                    <option value="5" {% if rating == 5 %}selected{% endif %}>5.0+ (Decent)</option>
-                    <option value="6" {% if rating == 6 %}selected{% endif %}>6.0+ (Good)</option>
-                    <option value="7" {% if rating == 7 %}selected{% endif %}>7.0+ (Highly Rated)</option>
-                    <option value="8" {% if rating == 8 %}selected{% endif %}>8.0+ (Masterpieces)</option>
-                </select>
-            </div>
-
-            <!-- Generate Button -->
-            <button type="submit" class="generate-btn">Analyze & Curate Recommendations</button>
-        </form>
-    </section>
-
-    <!-- MOVIES RECOMMENDATIONS SECTION -->
-    <section class="movies-section reveal" id="recommendations">
-        <h2>Your Curated <span>Showcase</span></h2>
-        
-        {% if not movies %}
-        <div style="padding: 60px 20px; text-align: center; background: rgba(15, 20, 35, 0.4); border-radius: 24px; border: 1px dashed rgba(255, 255, 255, 0.12);">
-            <p style="font-size: 1.25rem; color: rgba(255, 255, 255, 0.65); margin: 0; line-height: 1.6;">🍿 No recommendations curated yet. Use the vibe filters above and click 'Analyze & Curate' to find matches!</p>
-        </div>
-        {% else %}
-        <div class="movies-grid">
-            {% for movie in movies %}
-            <div class="movie-card reveal reveal-delay-{{ (loop.index0 % 4) + 1 }}" 
-                 data-title="{{ movie.title }}" 
-                 data-poster="{{ movie.poster }}" 
-                 data-year="{{ movie.year }}" 
-                 data-rating="{{ movie.rating }}" 
-                 data-runtime="{{ movie.runtime }}" 
-                 data-genre="{{ movie.genre }}" 
-                 data-summary="{{ movie.summary | escape }}" 
-                 data-cast="{{ movie.cast | escape }}" 
-                 data-director="{{ movie.director | escape }}" 
-                 data-trailer="{{ movie.trailer }}">
-                <img src="{{ movie.poster }}" alt="{{ movie.title }} Poster" loading="lazy">
-                <div class="movie-info">
-                    <h3>{{ movie.title }}</h3>
-                    <div class="movie-meta">
-                        <span>📅 {{ movie.year }}</span>
-                        <span class="movie-rating">⭐ {{ movie.rating }}</span>
-                        <span>⏱️ {{ movie.runtime }}</span>
-                    </div>
-                    <div class="movie-genre">{{ movie.genre }}</div>
-                    <p class="movie-summary">{{ movie.summary }}</p>
-                    <div class="movie-cast"><strong>Cast:</strong> {{ movie.cast }}</div>
-                    <div class="movie-director"><strong>Director:</strong> {{ movie.director }}</div>
-                    <a href="{{ movie.trailer }}" target="_blank" class="trailer-btn">🍿 Watch Trailer</a>
+    <!-- HERO -->
+    <header id="home" class="hero">
+        <img
+            class="hero-bg-img"
+            src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600&q=80"
+            alt=""
+            width="1600"
+            height="900"
+            fetchpriority="high">
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div class="hero-inner">
+            <div class="hero-content">
+                <h1 class="hero-title">Discover Movies</h1>
+                <h2 class="hero-subtitle">
+                    <span id="typewriterText">Tailored Just For You</span><span class="typewriter-cursor" aria-hidden="true"></span>
+                </h2>
+                <p class="hero-desc">
+                    Mouverse AI learns from your mood, region, and watch history to surface films you'll actually love —
+                    powered by content-based filtering and your personal taste profile.
+                </p>
+                <div class="hero-actions">
+                    <a href="#curator" class="btn-primary">🎬 Explore Now</a>
+                    <a href="https://www.youtube.com/results?search_query=cinema+movie+trailers" class="btn-ghost" target="_blank" rel="noopener noreferrer">▶ Watch Trailer</a>
+                </div>
+                <div class="hero-stats" aria-label="Platform highlights">
+                    <div class="stat-badge stat-badge-1">🎬 10K+ Movies</div>
+                    <div class="stat-badge stat-badge-2">🌍 15 Languages</div>
+                    <div class="stat-badge stat-badge-3">😊 8 Moods</div>
+                    <div class="stat-badge stat-badge-4">⭐ AI Powered</div>
                 </div>
             </div>
-            {% endfor %}
         </div>
+        <a href="#curator" class="scroll-arrow" aria-label="Scroll to browse">
+            <span class="scroll-arrow-label">Scroll</span>
+        </a>
+    </header>
+
+    <div class="section-divider" aria-hidden="true"></div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages" role="alert">
+                {% for category, message in messages %}
+                    <div class="flash-alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
         {% endif %}
+    {% endwith %}
+
+    <!-- WELCOME BACK EXPERIENCE -->
+    <section id="welcomeBackSection" class="welcome-back-section page-section reveal-section" style="display: none;">
+        <div class="welcome-back-wrap">
+            <div class="welcome-back-card">
+                <h2>Hey <span id="welcomeUserName" class="text-cyan">{{ user.name }}</span> 👋</h2>
+                <h3>Welcome Back!</h3>
+                <p>Ready for another movie night?</p>
+            </div>
+        </div>
     </section>
 
-    <!-- PREMIUM LOADING OVERLAY -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-content">
-            <div class="spinner-container">
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring inner"></div>
-                <div class="logo-spark">🍿</div>
-            </div>
-            <h2>AI is Curating...</h2>
-            <p>Scanning movies database, querying OMDB, and generating custom recommendations in real time.</p>
-        </div>
-    </div>
+    <!-- FILTER / BROWSE -->
+    <section class="page-section filter-section reveal-section" id="curator">
+        <div class="filter-section-inner">
+            <h2 class="filter-main-title">
+                <span class="title-emoji" aria-hidden="true">🎯</span>
+                Find Your <span class="text-cyan">Perfect Movie</span>
+            </h2>
+            <p class="filter-subtitle">Tune mood, genre, language, and preferences — then let Mouverse AI curate your lineup.</p>
 
-    <!-- MOVIE DETAIL DRAWER -->
-    <div id="movieDrawer" class="movie-drawer">
+            <form id="curatorForm" class="curator-panel" onsubmit="getRecommendations(event)">
+                <div class="curator-row">
+                    <div class="curator-field">
+                        <label for="genreSelect">Genre</label>
+                        <select name="genre" id="genreSelect" class="curator-select">
+                            <option value="Action" selected>Action</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Drama">Drama</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Thriller">Thriller</option>
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Animation">Animation</option>
+                            <option value="Crime">Crime</option>
+                            <option value="Horror">Horror</option>
+                            <option value="Adventure">Adventure</option>
+                            <option value="Documentary">Documentary</option>
+                        </select>
+                    </div>
+                    <div class="curator-field">
+                        <label for="languageSelect">Language</label>
+                        <select name="language" id="languageSelect" class="curator-select">
+                            <option value="" selected>All Languages</option>
+                            {% for lang in languages %}
+                            <option value="{{ lang }}">{{ lang }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <p class="curator-mood-label">How are you feeling?</p>
+                <div class="mood-chips">
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="happy" checked>
+                        <span>😊 Happy</span>
+                    </label>
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="sad">
+                        <span>😢 Sad</span>
+                    </label>
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="excited">
+                        <span>🤩 Excited</span>
+                    </label>
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="romantic">
+                        <span>❤️ Romantic</span>
+                    </label>
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="thrilling">
+                        <span>😱 Thrilled</span>
+                    </label>
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="motivated">
+                        <span>💪 Motivated</span>
+                    </label>
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="dark">
+                        <span>🌑 Dark</span>
+                    </label>
+                    <label class="mood-chip">
+                        <input type="radio" name="mood" value="funny">
+                        <span>😂 Funny</span>
+                    </label>
+                </div>
+
+                <div class="curator-sliders">
+                    <div class="slider-group">
+                        <label class="slider-label" for="runtimeSlider">
+                            <span>Max runtime</span>
+                            <span class="slider-value"><output id="runtimeValue" for="runtimeSlider">240</output> min</span>
+                        </label>
+                        <input type="range" name="runtime" id="runtimeSlider" class="curator-range" min="60" max="240" value="240" step="5">
+                    </div>
+                    <div class="slider-group">
+                        <label class="slider-label" for="ratingSlider">
+                            <span>Minimum rating</span>
+                            <span class="slider-value"><output id="ratingValue" for="ratingSlider">0.0</output> / 10</span>
+                        </label>
+                        <input type="range" name="min_rating" id="ratingSlider" class="curator-range" min="0" max="10" value="0" step="0.5">
+                    </div>
+                </div>
+
+                <button type="submit" class="generate-btn">
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                    GET RECOMMENDATIONS
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div class="section-divider" aria-hidden="true"></div>
+
+    <!-- RECOMMENDATIONS -->
+    <section class="page-section movies-section reveal-section" id="recommendations">
+        <div class="section-wrap">
+            <div class="section-header">
+                <h2>Your Curated <span class="text-cyan">Recommendations</span></h2>
+                <p class="section-subtitle">Personalized picks for <strong>{{ region }}</strong> in your preferred languages.</p>
+            </div>
+
+            <div class="skeleton-grid" id="skeletonGrid" style="display: none;">
+                {% for i in range(6) %}
+                <div class="skeleton-card">
+                    <div class="skeleton-poster shimmer"></div>
+                    <div class="skeleton-info">
+                        <div class="skeleton-title shimmer"></div>
+                        <div class="skeleton-meta shimmer"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="movies-grid" id="moviesGrid">
+                <div class="no-recommendations-placeholder">
+                    <p>🍿 Hit <strong>GET RECOMMENDATIONS</strong> above to discover movies matched to your mood and region.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECOMMENDED FOR YOU -->
+    <section class="page-section recommended-section reveal-section" id="personalizedRecommendations" style="display: none;">
+        <div class="section-wrap">
+            <div class="section-header">
+                <h2>Recommended <span class="text-cyan">For You</span></h2>
+                <p class="section-subtitle">Tailored picks based on your searches, watch history, and clicks.</p>
+            </div>
+            <div class="movies-grid" id="personalizedGrid">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </section>
+    <div class="section-divider recommended-divider" aria-hidden="true" style="display: none;"></div>
+
+    <!-- TRENDING MOVIES -->
+    <section class="page-section trending-section reveal-section" id="trending">
+        <div class="section-wrap">
+            <div class="section-header">
+                <h2>Trending <span class="text-cyan">Movies</span></h2>
+                <p class="section-subtitle">Popular movies right now.</p>
+                <div class="trending-tabs" role="tablist">
+                    <button type="button" class="trending-tab active" id="tabTrendingToday" role="tab" aria-selected="true" aria-controls="trendingGrid">Today</button>
+                    <button type="button" class="trending-tab" id="tabTrendingWeek" role="tab" aria-selected="false" aria-controls="trendingGrid">This Week</button>
+                </div>
+            </div>
+            <div class="movies-grid" id="trendingGrid">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </section>
+    <div class="section-divider" aria-hidden="true"></div>
+
+    <!-- WATCH HISTORY -->
+    <section class="page-section history-section reveal-section" id="history">
+        <div class="section-wrap">
+            <div class="section-header">
+                <h2>Recently <span class="text-cyan">Watched</span></h2>
+                <p class="section-subtitle">Your watch history trains Mouverse AI to recommend smarter over time.</p>
+            </div>
+            <div class="history-grid" id="historyGrid">
+                <div class="no-history-placeholder">
+                    <p>📺 You haven&rsquo;t watched any movies yet. Mark a film as watched to build your taste profile.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOVIE DRAWER -->
+    <div id="movieDrawer" class="movie-drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
         <div class="drawer-overlay" onclick="closeMovieDrawer()"></div>
         <div class="drawer-container">
-            <button class="drawer-close-btn" onclick="closeMovieDrawer()" aria-label="Close details">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-            
+            <button type="button" class="drawer-close-btn" onclick="closeMovieDrawer()" aria-label="Close">✕</button>
             <div class="drawer-hero">
                 <div class="drawer-hero-bg" id="drawerHeroBg"></div>
                 <div class="drawer-hero-content">
                     <div class="drawer-meta-tags">
-                        <span class="tag-match" id="drawerMatch">95% Match</span>
-                        <span class="tag-year" id="drawerYear">2024</span>
-                        <span class="tag-age">TV-MA</span>
+                        <span class="tag-year" id="drawerYear">Year</span>
                         <span class="tag-duration" id="drawerDuration">120 min</span>
+                        <span class="tag-rating" id="drawerRating">⭐ Rating</span>
                     </div>
-                    <h1 class="drawer-title" id="drawerTitle">CYBER HORIZON</h1>
-                    <p class="drawer-plot" id="drawerPlot"></p>
+                    <h1 class="drawer-title" id="drawerTitle">Movie Title</h1>
+                    <p class="drawer-plot" id="drawerPlot">Loading plot...</p>
+                    <div class="drawer-specs">
+                        <p><strong>Director:</strong> <span id="drawerDirector">—</span></p>
+                        <p><strong>Cast:</strong> <span id="drawerCast">—</span></p>
+                        <p><strong>Genre:</strong> <span id="drawerGenre">—</span></p>
+                        <p><strong>Language:</strong> <span id="drawerLanguage">—</span></p>
+                    </div>
                     <div class="drawer-actions">
-                        <a href="#" id="drawerTrailerBtn" target="_blank" class="drawer-primary-btn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Watch Now
-                        </a>
-                        <button class="drawer-secondary-btn" id="drawerWatchlistBtn" onclick="toggleWatchlist()">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add to Watchlist
-                        </button>
-                        <button class="drawer-icon-btn" aria-label="Share" onclick="shareMovie()">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                        </button>
+                        <button type="button" class="drawer-primary-btn" id="drawerWatchBtn">🍿 Mark as Watched</button>
+                        <button type="button" class="drawer-secondary-btn" id="drawerTrailerBtn">🎬 Watch Trailer</button>
                     </div>
                 </div>
-            </div>
-            
-            <div class="drawer-info-grid">
-                <div class="drawer-specs-box">
-                    <h3>Technical Specs</h3>
-                    <div class="spec-item">
-                        <div class="spec-icon">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
-                        </div>
-                        <div class="spec-details">
-                            <span class="spec-label">Dynamic Range</span>
-                            <span class="spec-value" id="specDynamicRange">HDR</span>
-                        </div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-icon">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-                        </div>
-                        <div class="spec-details">
-                            <span class="spec-label">Audio Engine</span>
-                            <span class="spec-value" id="specAudioEngine">Dolby Atmos</span>
-                        </div>
-                    </div>
-                    <div class="spec-item">
-                        <div class="spec-icon">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                        </div>
-                        <div class="spec-details">
-                            <span class="spec-label">Resolution</span>
-                            <span class="spec-value" id="specResolution">4K Ultra HD</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="drawer-cast-box">
-                    <div class="cast-header">
-                        <h3>Cast & Crew</h3>
-                        <span class="director-name" id="drawerDirector">DIRECTOR: KAITO TANAKA</span>
-                    </div>
-                    <div class="cast-grid" id="drawerCastGrid">
-                        <!-- Dynamic Cast Cards -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="drawer-similar">
-                <h2>Similar Discoveries</h2>
-                <div class="similar-grid" id="drawerSimilarGrid">
-                    <!-- Dynamic Similar Movie Cards -->
-                </div>
-            </div>
-            
-            <div class="drawer-footer">
-                <div class="drawer-footer-logo">Mouverse</div>
-                <p class="drawer-footer-desc">Experience the next generation of cinematic storytelling. High-fidelity streaming for the modern enthusiast.</p>
-                <div class="drawer-footer-links">
-                    <a href="#">About Us</a>
-                    <a href="#">Help Center</a>
-                    <a href="#">Contact Us</a>
-                    <a href="#">Terms of Use</a>
-                    <a href="#">Privacy Policy</a>
-                </div>
-                <div class="drawer-footer-dots">
-                    <span></span><span></span><span class="active"></span><span></span><span></span>
-                </div>
-                <div class="drawer-footer-copyright">&copy; 2026 Mouverse Inc. All rights reserved.</div>
             </div>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        &copy; 2026 Mouverse AI. Premium Movie Recommendation System. All rights reserved.
-    </footer>
-
-    <!-- CREDIT -->
-    <div class="site-credit">
-        <p>Designed &amp; developed by <strong>Aritra Bhui</strong> &amp; <strong>Argha Sadhu</strong></p>
+    <!-- TRAILER MODAL -->
+    <div id="trailerModal" class="trailer-modal" role="dialog" aria-modal="true" aria-labelledby="trailerModalTitle">
+        <div class="trailer-overlay" onclick="closeTrailerModal()"></div>
+        <div class="trailer-container">
+            <button type="button" class="trailer-close-btn" onclick="closeTrailerModal()" aria-label="Close">✕</button>
+            <div class="trailer-content">
+                <h2 class="trailer-title" id="trailerModalTitle">Movie Trailer</h2>
+                <div class="trailer-video-wrapper">
+                    <div id="trailerVideoContainer"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Script link -->
+    <!-- TOAST -->
+    <div id="toastNotification" class="toast-notification" role="status" aria-live="polite">
+        <div class="toast-content">
+            <span class="toast-icon" id="toastIcon">✨</span>
+            <div class="toast-message">
+                <h4 id="toastTitle">Notification</h4>
+                <p id="toastBody">Action completed.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHATBOT -->
+    <div class="chatbot-wrap">
+        <div id="chatWindow" class="chat-window" aria-hidden="true">
+            <header class="chat-header">
+                <div class="chat-header-info">
+                    <div class="moumi-container moumi-in-header" id="moumiHeaderContainer">
+                        <img src="/static/moumi.svg" alt="Moumi - AI Mascot" class="moumi-character" id="moumiHeaderCharacter">
+                    </div>
+                    <div>
+                        <h4>Moumi</h4>
+                        <p class="chat-subtitle">Your Movie Companion</p>
+                    </div>
+                </div>
+                <button type="button" id="chatCloseBtn" class="chat-close-btn" aria-label="Close chat">✕</button>
+            </header>
+            <div id="chatMessages" class="chat-messages" role="log" aria-live="polite"></div>
+            <form id="chatForm" class="chat-input-area">
+                <label for="chatInput" class="sr-only">Message</label>
+                <input type="text" id="chatInput" placeholder="Ask about moods or movies..." autocomplete="off">
+                <button type="submit" id="chatSendBtn" class="chat-send-btn" aria-label="Send">➤</button>
+            </form>
+        </div>
+        <button type="button" id="chatFab" class="chat-fab" aria-label="Open Moumi" aria-expanded="false" aria-controls="chatWindow">
+            <span class="chat-fab-ring" aria-hidden="true"></span>
+            <div class="moumi-container moumi-in-fab" id="moumiFabContainer">
+                <img src="/static/moumi.svg" alt="Moumi - AI Mascot" class="moumi-character" id="moumiFabCharacter">
+            </div>
+            <span class="chat-fab-close-icon" style="display: none;">✕</span>
+        </button>
+    </div>
+
+    <footer class="footer footer-minimal">
+        <p class="footer-tagline">&copy; 2026 Mouverse AI — Cinematic recommendations for {{ region }}.</p>
+    </footer>
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='moumi.js') }}"></script>
 </body>
 </html>

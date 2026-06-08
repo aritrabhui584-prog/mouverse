@@ -1,0 +1,27 @@
+title,genre,language,region,runtime,rating,mood_tags,poster_url
+Inception,Sci-Fi,English,USA,148,8.8,excited motivated thrilling,"https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg"
+Dilwale Dulhania Le Jayenge,Romance,Hindi,India,189,8.0,happy romantic funny,https://m.media-amazon.com/images/M/MV5BMDQyMDI4ZGMtYjI5MS00YTk1LTk3ZDgtZTA3MzQ5YWQ4Y2Q4XkEyXkFqcGc@._V1_SX300.jpg
+3 Idiots,Comedy,Hindi,India,170,8.4,happy funny motivated,https://m.media-amazon.com/images/M/MV5BNzc4ZWQ3NmYtODE0Ny00YTQ4LTlkZWItNTBkMGQ0MmUwMmJlXkEyXkFqcGc@._V1_SX300.jpg
+Sholay,Action,Hindi,India,204,8.1,thrilling excited motivated,https://m.media-amazon.com/images/M/MV5BNmI1NTRmMWQtNDJlZC00MGIzLWEwYzctYTQwNTI2NWNjM2MwXkEyXkFqcGc@._V1_SX300.jpg
+Pather Panchali,Drama,Bengali,India,125,8.3,sad dark motivated,https://m.media-amazon.com/images/M/MV5BNmZhNzc0ZDMtZDg2My00MjkxLWJjZTctNTljODc2ZjQzMzJkXkEyXkFqcGc@._V1_SX300.jpg
+Super Deluxe,Thriller,Tamil,India,176,8.3,dark thrilling funny,https://m.media-amazon.com/images/M/MV5BZmQ3NjM2OWMtY2IxNy00OWY4LWIyYjMtNGUzMGU3ZTZkMWJmXkEyXkFqcGc@._V1_SX300.jpg
+Baahubali: The Beginning,Action,Telugu,India,159,8.0,excited motivated thrilling,https://m.media-amazon.com/images/M/MV5BM2YxZThhZmEtYzM0Yi00OWYxLWI4NGYtM2Y2ZDNmOGE0ZWQzXkEyXkFqcGc@._V1_SX300.jpg
+Interstellar,Sci-Fi,English,USA,169,8.6,sad motivated excited,"https://m.media-amazon.com/images/M/MV5BYzdjMDAxZGItMjI2My00ODA1LTlkNzItOWFjMDU5ZDJlYWY3XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg"
+The Dark Knight,Action,English,USA,152,9.0,dark thrilling motivated,"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg"
+Parasite,Thriller,Korean,Korea,132,8.6,dark funny thrilling,https://m.media-amazon.com/images/M/MV5BYjk1Y2U4MjQtY2ZiNS00OWQyLWI3MmYtZWUwNmRjYWRiNWNhXkEyXkFqcGc@._V1_SX300.jpg
+Spirited Away,Fantasy,Japanese,Japan,125,8.6,happy excited romantic,"https://m.media-amazon.com/images/M/MV5BNTEyNmEwOWUtYzkyOC00ZTQ4LTllZmUtMjk0Y2YwOGUzYjRiXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg"
+Chokher Bali,Romance,Bengali,India,145,7.1,sad romantic dark,https://m.media-amazon.com/images/M/MV5BMTQ4NjM4MTY3NF5BMl5BanBnXkFtZTgwNTc1OTk3NjE@._V1_SX300.jpg
+Nayagan,Crime,Tamil,India,145,8.6,dark motivated sad,https://m.media-amazon.com/images/M/MV5BMGU5MTVmNzQtMmY2Zi00NGVmLThlM2ItNDIzYzNiYmYxZjliXkEyXkFqcGdeQXVyMTA4MzQ4NzMw._V1_SX300.jpg
+C/o Kancharapalem,Drama,Telugu,India,142,8.9,happy romantic sad,https://m.media-amazon.com/images/M/MV5BZjYyM2UwMGQtMjI4YS00Y2U4LTllOWItYjIzODlhZThlMDc2XkEyXkFqcGc@._V1_SX300.jpg
+The Shawshank Redemption,Drama,English,USA,142,9.3,motivated sad happy,"https://m.media-amazon.com/images/M/MV5BMDAyY2FhYjctNDc5OS00MDNlLThiMGUtY2UxYWVkNGY2ZjljXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg"
+Zindagi Na Milegi Dobara,Comedy,Hindi,India,155,8.2,happy excited funny,https://m.media-amazon.com/images/M/MV5BOGIzYzg5NzItNDRkYS00NmIzLTk3NzQtZWYwY2VlZDhiYWQ4XkEyXkFqcGc@._V1_SX300.jpg
+The Lion King,Animation,English,USA,88,8.5,happy sad motivated,https://m.media-amazon.com/images/M/MV5BZGRiZDZhZjItM2M3ZC00Y2IyLTk3Y2MtMWY5YjliNDFkZTJlXkEyXkFqcGc@._V1_SX300.jpg
+The Godfather,Drama,English,USA,175,9.2,dark emotional deep,"https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY562_CR8,0,380,562_.jpg"
+Forrest Gump,Drama,English,USA,142,8.8,happy emotional moving,"https://m.media-amazon.com/images/M/MV5BNDYwNzVjMTItZmU5YS00YjQ5LTljYjgtMjY2NDVmYWMyNWFmXkEyXkFqcGc@._V1_QL75_UY562_CR4,0,380,562_.jpg"
+Avengers Endgame,Action,English,USA,181,8.4,excited thrilling happy,"https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_QL75_UX380_CR0,0,380,562_.jpg"
+Titanic,Romance,English,USA,194,7.9,romantic emotional sad,"https://m.media-amazon.com/images/M/MV5BYzYyN2FiZmUtYWYzMy00MzViLWJkZTMtOGY1ZjgzNWMwN2YxXkEyXkFqcGc@._V1_QL75_UX380_CR0,2,380,562_.jpg"
+Pulp Fiction,Thriller,English,USA,154,8.9,dark thrilled excited,"https://m.media-amazon.com/images/M/MV5BYTViYTE3ZGQtNDBlMC00ZTAyLTkyODMtZGRiZDg0MjA2YThkXkEyXkFqcGc@._V1_QL75_UY562_CR3,0,380,562_.jpg"
+Goodfellas,Drama,English,USA,146,8.7,dark thrilled excited,"https://m.media-amazon.com/images/M/MV5BN2E5NzI2ZGMtY2VjNi00YTRjLWI1MDUtZGY5OWU1MWJjZjRjXkEyXkFqcGc@._V1_QL75_UX380_CR0,3,380,562_.jpg"
+Demon Slayer: Mugen Train,Action,Japanese,Japan,117,8.2,excited thrilling sad,https://m.media-amazon.com/images/M/MV5BNzEzYjhkYTctMWNmZS00MTc5LWI4OWUtZjFkNzNkYTNkMTJlXkEyXkFqcGc@._V1_SX300.jpg
+My Sassy Girl,Romance,Korean,Korea,137,8.0,happy romantic funny,https://m.media-amazon.com/images/M/MV5BNjNlYTg0MGItM2VhMy00NTZhLTlmNTktM2NmYmM4YmJhYmZkXkEyXkFqcGc@._V1_SX300.jpg
+Maula Jatt,Action,Punjabi,Pakistan,153,8.2,excited thrilled motivated,https://m.media-amazon.com/images/M/MV5BZTE2MTFmZmItNTMwNi00NGUzLWIwYjktNjA2NjhlMTdlMjhhXkEyXkFqcGdeQXVyODQwMDcwNDY@._V1_SX300.jpg

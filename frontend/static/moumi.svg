@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="moumi-character">
+  <defs>
+    <radialGradient id="moumiBodyGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#0066aa"/>
+    </radialGradient>
+    <radialGradient id="moumiEyeGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0e0e0"/>
+    </radialGradient>
+    <radialGradient id="moumiPupilGrad" cx="30%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0a0a14"/>
+    </radialGradient>
+    <linearGradient id="moumiCheekGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9999"/>
+      <stop offset="100%" stop-color="#ff6699"/>
+    </linearGradient>
+    <filter id="moumiGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Film reel wings (background) -->
+  <g class="moumi-film-reel-left" opacity="0.3">
+    <ellipse cx="45" cy="100" rx="25" ry="35" fill="#333" stroke="#00d4ff" stroke-width="2"/>
+    <circle cx="45" cy="90" r="5" fill="#00d4ff"/>
+    <circle cx="45" cy="100" r="5" fill="#00d4ff"/>
+    <circle cx="45" cy="110" r="5" fill="#00d4ff"/>
+  </g>
+  <g class="moumi-film-reel-right" opacity="0.3">
+    <ellipse cx="155" cy="100" rx="25" ry="35" fill="#333" stroke="#00d4ff" stroke-width="2"/>
+    <circle cx="155" cy="90" r="5" fill="#00d4ff"/>
+    <circle cx="155" cy="100" r="5" fill="#00d4ff"/>
+    <circle cx="155" cy="110" r="5" fill="#00d4ff"/>
+  </g>
+
+  <!-- Main body -->
+  <ellipse class="moumi-body" cx="100" cy="110" rx="55" ry="50" fill="url(#moumiBodyGrad)" filter="url(#moumiGlow)"/>
+
+  <!-- Head -->
+  <ellipse class="moumi-head" cx="100" cy="70" rx="45" ry="40" fill="url(#moumiBodyGrad)" filter="url(#moumiGlow)"/>
+
+  <!-- Eyes -->
+  <g class="moumi-eyes">
+    <ellipse class="moumi-eye-left" cx="82" cy="65" rx="14" ry="16" fill="url(#moumiEyeGrad)"/>
+    <ellipse class="moumi-eye-right" cx="118" cy="65" rx="14" ry="16" fill="url(#moumiEyeGrad)"/>
+    
+    <!-- Pupils -->
+    <circle class="moumi-pupil-left" cx="84" cy="67" r="6" fill="url(#moumiPupilGrad)"/>
+    <circle class="moumi-pupil-right" cx="120" cy="67" r="6" fill="url(#moumiPupilGrad)"/>
+    
+    <!-- Eye shine -->
+    <circle class="moumi-shine-left" cx="86" cy="63" r="3" fill="white" opacity="0.9"/>
+    <circle class="moumi-shine-right" cx="122" cy="63" r="3" fill="white" opacity="0.9"/>
+  </g>
+
+  <!-- Eyelids (for blinking) -->
+  <ellipse class="moumi-eyelid-left" cx="82" cy="65" rx="14" ry="16" fill="url(#moumiBodyGrad)" opacity="0"/>
+  <ellipse class="moumi-eyelid-right" cx="118" cy="65" rx="14" ry="16" fill="url(#moumiBodyGrad)" opacity="0"/>
+
+  <!-- Cheeks -->
+  <ellipse class="moumi-cheek-left" cx="65" cy="80" rx="10" ry="6" fill="url(#moumiCheekGrad)" opacity="0.6"/>
+  <ellipse class="moumi-cheek-right" cx="135" cy="80" rx="10" ry="6" fill="url(#moumiCheekGrad)" opacity="0.6"/>
+
+  <!-- Mouth -->
+  <g class="moumi-mouth">
+    <path class="moumi-smile" d="M 85 88 Q 100 98 115 88" stroke="#1a1a2e" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Tiny popcorn bucket accessory -->
+  <g class="moumi-popcorn" transform="translate(130, 95)">
+    <rect x="0" y="10" width="20" height="18" rx="3" fill="#ff6b35" stroke="#cc4400" stroke-width="1"/>
+    <ellipse cx="5" cy="8" rx="4" ry="5" fill="#fff8e7"/>
+    <ellipse cx="10" cy="5" rx="4" ry="5" fill="#fff8e7"/>
+    <ellipse cx="15" cy="8" rx="4" ry="5" fill="#fff8e7"/>
+  </g>
+
+  <!-- Cinema ticket badge -->
+  <g class="moumi-ticket" transform="translate(50, 95)">
+    <rect x="0" y="0" width="18" height="24" rx="2" fill="#ffd700" stroke="#cc9900" stroke-width="1"/>
+    <circle cx="9" cy="8" r="3" fill="#ff6b35"/>
+    <line x1="4" y1="14" x2="14" y2="14" stroke="#cc9900" stroke-width="1"/>
+    <line x1="4" y1="18" x2="14" y2="18" stroke="#cc9900" stroke-width="1"/>
+  </g>
+
+  <!-- Star-shaped glow (for excited state) -->
+  <g class="moumi-star-glow" opacity="0">
+    <polygon points="100,30 103,40 113,40 105,47 108,57 100,51 92,57 95,47 87,40 97,40" fill="#ffd700" filter="url(#moumiGlow)"/>
+  </g>
+
+  <!-- Thinking sparkles -->
+  <g class="moumi-think-sparkles" opacity="0">
+    <circle cx="140" cy="40" r="4" fill="#00d4ff"/>
+    <circle cx="150" cy="30" r="3" fill="#00d4ff"/>
+    <circle cx="145" cy="50" r="2" fill="#00d4ff"/>
+  </g>
+
+  <!-- Speech bubble (hidden by default) -->
+  <g class="moumi-speech-bubble" opacity="0">
+    <ellipse cx="100" cy="15" rx="50" ry="20" fill="white" stroke="#00d4ff" stroke-width="2"/>
+    <polygon points="85,30 95,25 90,35" fill="white" stroke="#00d4ff" stroke-width="2"/>
+    <text class="moumi-speech-text" x="100" y="20" text-anchor="middle" font-size="10" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-weight="600">Hello!</text>
+  </g>
+</svg>

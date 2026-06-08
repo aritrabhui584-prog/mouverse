@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mouverse AI — Verify OTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #00d4ff;
+            --cyan-dark: #0099bb;
+            --bg: #050a14;
+            --glass: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --text: #f0f0f0;
+            --muted: #666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .film-strip {
+            position: fixed;
+            width: 60px;
+            opacity: 0.06;
+            z-index: 1;
+            animation: floatStrip linear infinite;
+        }
+        .film-strip svg { width: 100%; }
+
+        @keyframes floatStrip {
+            0%   { transform: translateY(110vh) rotate(var(--rot)); opacity: 0; }
+            10%  { opacity: 0.06; }
+            90%  { opacity: 0.06; }
+            100% { transform: translateY(-110vh) rotate(var(--rot)); opacity: 0; }
+        }
+
+        .spotlight {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,212,255,0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            transition: left 0.1s ease, top 0.1s ease;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+            z-index: 2;
+            animation: scan 4s linear infinite;
+        }
+        @keyframes scan {
+            0%   { top: -2px; opacity: 0; }
+            5%   { opacity: 1; }
+            95%  { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-size: 128px;
+            pointer-events: none;
+            animation: noiseShift 0.5s steps(2) infinite;
+        }
+        @keyframes noiseShift {
+            0%   { background-position: 0 0; }
+            25%  { background-position: 10px -10px; }
+            50%  { background-position: -5px 5px; }
+            75%  { background-position: 8px 3px; }
+            100% { background-position: 0 0; }
+        }
+
+        .ticker-wrap {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 36px;
+            background: rgba(0,212,255,0.06);
+            border-top: 1px solid rgba(0,212,255,0.12);
+            overflow: hidden;
+            z-index: 3;
+        }
+        .ticker {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+            gap: 60px;
+        }
+        .ticker span {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: rgba(0,212,255,0.45);
+        }
+        .ticker-dot {
+            color: var(--cyan) !important;
+        }
+        @keyframes ticker {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass);
+            border: 1px solid rgba(0,212,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease both;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            filter: drop-shadow(0 0 12px rgba(0,212,255,0.6));
+            animation: pulse 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 12px rgba(0,212,255,0.6)); }
+            50%       { filter: drop-shadow(0 0 24px rgba(0,212,255,0.9)); }
+        }
+
+        .logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 38px;
+            letter-spacing: 3px;
+            line-height: 1;
+        }
+        .logo-text span { color: var(--cyan); }
+
+        .shield-icon {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+            text-shadow: 0 0 20px rgba(0,212,255,0.6);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+        .subtitle .phone-mask {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .otp-box {
+            flex: 1;
+            max-width: 46px;
+            aspect-ratio: 5 / 6;
+            text-align: center;
+            font-size: clamp(18px, 5vw, 26px);
+            font-weight: bold;
+            color: white;
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s;
+            caret-color: #00d4ff;
+            min-width: 0;
+        }
+        .otp-box:focus {
+            border-color: #00d4ff;
+            background: rgba(0,212,255,0.08);
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.15);
+            transform: scale(1.05);
+        }
+        .otp-box.filled {
+            border-color: rgba(0,212,255,0.5);
+            color: #00d4ff;
+        }
+        .otp-box.success {
+            border-color: #00ff88;
+            color: #00ff88;
+            background: rgba(0,255,136,0.08);
+        }
+        .otp-box.error {
+            border-color: #ff4444;
+            color: #ff4444;
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .timer-container {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #888;
+        }
+        .timer-container .timer-value {
+            color: var(--cyan);
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .timer-container .timer-value.expiring {
+            color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+
+        .btn {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #0099bb, #00d4ff);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,212,255,0.3);
+        }
+        .btn:hover {
+            transform: scale(1.01);
+            box-shadow: 0 12px 35px rgba(0,212,255,0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .resend-container {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #888;
+        }
+        .resend-link {
+            color: #666;
+            text-decoration: none;
+            font-weight: 600;
+            pointer-events: none;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+        .resend-link.enabled {
+            color: var(--cyan);
+            pointer-events: auto;
+            opacity: 1;
+        }
+        .resend-link.enabled:hover {
+            text-decoration: underline;
+        }
+
+        .msg {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        .msg.error {
+            background: rgba(229,9,20,0.1);
+            border: 1px solid rgba(229,9,20,0.3);
+            color: #ff6b6b;
+            display: block;
+        }
+        .msg.success {
+            background: rgba(0,200,100,0.1);
+            border: 1px solid rgba(0,200,100,0.3);
+            color: #4dffaa;
+            display: block;
+        }
+        .msg.info {
+            background: rgba(0,212,255,0.08);
+            border: 1px solid rgba(0,212,255,0.3);
+            color: var(--cyan);
+            display: block;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 50px; right: 24px;
+            background: #111;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--cyan);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: white;
+            z-index: 100;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .toast.show { transform: translateX(0); }
+
+        @media (max-width: 1200px) {
+            /* Keep centered and safe */
+        }
+
+        @media (max-width: 992px) {
+            body { overflow-y: auto; }
+            #devOtpPanel {
+                position: relative !important;
+                top: auto !important;
+                right: auto !important;
+                margin: 20px auto !important;
+                width: 100% !important;
+                max-width: 420px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                margin: 40px auto 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body { overflow-y: auto; }
+            .card {
+                width: 92%;
+                padding: 30px 20px;
+                margin: 20px auto;
+            }
+            .otp-container {
+                gap: 6px;
+            }
+            .otp-box {
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="spotlight" id="spotlight"></div>
+<div class="scanline"></div>
+<div class="noise"></div>
+<div id="filmStrips"></div>
+<div class="ticker-wrap">
+    <div class="ticker" id="ticker"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+{% if dev_mode %}
+<!-- Dev Sandbox OTP Display Panel -->
+<div id="devOtpPanel" style="position: fixed; top: 30px; right: 30px; background: rgba(5, 10, 20, 0.7); border: 1px solid rgba(0, 212, 255, 0.4); border-radius: 16px; padding: 24px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 1000; width: 280px; box-shadow: 0 8px 32px rgba(0,212,255,0.25); animation: fadeIn 0.8s ease both; font-family: 'DM Sans', sans-serif;">
+    <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--cyan); margin-bottom: 14px; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+        <span>🛠️ DEV MODE OTP</span>
+        <span style="font-size: 10px; background: rgba(0, 212, 255, 0.15); padding: 2px 6px; border-radius: 4px;">ACTIVE</span>
+    </div>
+    
+    <div id="devOtpDisplay" style="font-family: monospace; font-size: 36px; font-weight: 700; color: white; letter-spacing: 4px; text-shadow: 0 0 16px rgba(0,212,255,0.8); text-align: center; margin: 12px 0; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 212, 255, 0.2);">{{ active_otp if active_otp else '------' }}</div>
+    
+    <div style="font-size: 11px; color: #ff6b6b; margin-bottom: 14px; text-align: center; font-weight: 600; letter-spacing: 0.5px;">
+        ⚠️ Development Mode - SMS not sent
+    </div>
+
+    <div style="font-size: 12px; color: #aaa; margin-bottom: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; display: flex; flex-direction: column; gap: 6px;">
+        <div>📅 <strong>Generated:</strong> <span id="devOtpTimestamp" style="color: #fff;">--:--:--</span></div>
+        <div>⏳ <strong>Expires in:</strong> <span id="devOtpCountdown" style="color: var(--cyan); font-weight: bold;">--:--</span></div>
+        <div>🔍 <strong>Status:</strong> <span id="devOtpStatus" style="color: #4dffaa; font-weight: 600;">--</span></div>
+    </div>
+    
+    <div style="display: flex; gap: 8px;">
+        <button type="button" onclick="copyDevOtpOnly()" style="flex: 1; height: 38px; border-radius: 8px; border: 1px solid var(--cyan); background: transparent; color: var(--cyan); font-weight: bold; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s;" onmouseover="this.style.background='rgba(0,212,255,0.1)';" onmouseout="this.style.background='transparent';">📋 Copy</button>
+        <button type="button" onclick="autofillDevOtpOnly()" style="flex: 1; height: 38px; border-radius: 8px; border: none; background: var(--cyan); color: #050a14; font-weight: bold; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,212,255,0.25);" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='translateY(0)';">⚡ Autofill</button>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="logo-wrap">
+        <svg class="logo-icon" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="portalGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#00d4ff"/>
+                    <stop offset="100%" stop-color="#0066aa"/>
+                </radialGradient>
+            </defs>
+            <circle cx="26" cy="26" r="24" stroke="#00d4ff" stroke-width="1.5" opacity="0.3"/>
+            <circle cx="26" cy="26" r="18" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+            <path d="M26 10 Q36 18 26 26 Q16 34 26 42" stroke="#00d4ff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M10 26 Q18 16 26 26 Q34 36 42 26" stroke="#00d4ff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <circle cx="26" cy="26" r="3" fill="url(#portalGrad)"/>
+            <circle cx="14" cy="14" r="1.2" fill="#00d4ff" opacity="0.7"/>
+            <circle cx="38" cy="12" r="0.8" fill="#00d4ff" opacity="0.5"/>
+            <circle cx="40" cy="38" r="1" fill="#00d4ff" opacity="0.6"/>
+            <circle cx="12" cy="36" r="0.8" fill="#00d4ff" opacity="0.4"/>
+            <circle cx="26" cy="6"  r="1" fill="white" opacity="0.5"/>
+            <circle cx="44" cy="22" r="0.8" fill="white" opacity="0.4"/>
+            <circle cx="8"  cy="30" r="1" fill="white" opacity="0.3"/>
+        </svg>
+        <div class="logo-text">MOUVERSE <span>AI</span></div>
+    </div>
+    
+    <div class="shield-icon">🛡️</div>
+    
+    <div class="title">Phone Verification</div>
+    <div class="subtitle">
+        We've sent a 6-digit code to<br>
+        <span class="phone-mask">+91 **** {{ email[-4:] if email else '****' }}</span>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="msg {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if dev_mode %}
+    <div id="devOtpBelowMessage" style="text-align: center; margin: 10px 0 20px; font-weight: bold; color: var(--cyan); font-family: monospace; font-size: 15px; background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.3); border-radius: 10px; padding: 16px 12px;">
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px;">&#x1F6E0;&#xFE0F; Development Mode OTP</div>
+        <span id="devOtpCodeText" style="font-size: 34px; letter-spacing: 8px; text-shadow: 0 0 14px rgba(0,212,255,0.7); display: inline-block;">{% if active_otp %}{{ active_otp }}{% else %}...{% endif %}</span>
+        <div style="font-size: 10px; color: rgba(0,212,255,0.5); margin-top: 6px; letter-spacing: 1px;">SMS not sent &mdash; use this code to verify</div>
+    </div>
+    {% endif %}
+
+    <form action="{{ url_for('auth.verify_otp') }}" method="POST" id="otpForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="otp_code" id="hiddenOtp">
+        <div class="otp-container" id="otpContainer">
+            <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" required>
+            <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" required>
+            <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" required>
+            <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" required>
+            <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" required>
+            <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" required>
+        </div>
+
+        <div class="timer-container">
+            Code expires in: <span class="timer-value" id="timer">04:59</span>
+        </div>
+
+        <button type="submit" class="btn" id="verifyBtn">Verify OTP</button>
+
+        <div class="resend-container">
+            Didn't receive the code? 
+            <a href="{{ url_for('auth.resend_otp') }}" class="resend-link" id="resendLink">Resend OTP</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width  = window.innerWidth;
+canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initStars();
+});
+
+let stars = [], shootingStars = [], mouse = { x: canvas.width/2, y: canvas.height/2 };
+
+function initStars() {
+    stars = [];
+    for (let i = 0; i < 220; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.5 + 0.2,
+            alpha: Math.random() * 0.7 + 0.1,
+            speed: Math.random() * 0.3 + 0.05,
+            twinkleSpeed: Math.random() * 0.02 + 0.005,
+            twinkleDir: Math.random() > 0.5 ? 1 : -1,
+            color: Math.random() > 0.85 ? '#00d4ff' : 'white'
+        });
+    }
+}
+initStars();
+
+function spawnShootingStar() {
+    shootingStars.push({
+        x: Math.random() * canvas.width * 0.7,
+        y: Math.random() * canvas.height * 0.4,
+        len: Math.random() * 120 + 60,
+        speed: Math.random() * 8 + 6,
+        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+        alpha: 1,
+        life: 0
+    });
+}
+setInterval(spawnShootingStar, 3000);
+
+function animate() {
+    ctx.fillStyle = 'rgba(5, 10, 20, 0.25)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (const s of stars) {
+        s.alpha += s.twinkleSpeed * s.twinkleDir;
+        if (s.alpha <= 0.1 || s.alpha >= 0.8) s.twinkleDir *= -1;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = s.color === '#00d4ff'
+            ? `rgba(0, 212, 255, ${s.alpha})`
+            : `rgba(255, 255, 255, ${s.alpha})`;
+        ctx.fill();
+        s.y -= s.speed;
+        if (s.y < -5) {
+            s.y = canvas.height + 5;
+            s.x = Math.random() * canvas.width;
+        }
+    }
+
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const ss = shootingStars[i];
+        const dx = Math.cos(ss.angle) * ss.speed;
+        const dy = Math.sin(ss.angle) * ss.speed;
+        const grad = ctx.createLinearGradient(ss.x, ss.y, ss.x - dx * 3, ss.y - dy * 3);
+        grad.addColorStop(0, `rgba(0, 212, 255, ${ss.alpha * 0.3})`);
+        grad.addColorStop(1, 'transparent');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(ss.x, ss.y);
+        ctx.lineTo(ss.x - Math.cos(ss.angle) * ss.len, ss.y - Math.sin(ss.angle) * ss.len);
+        ctx.stroke();
+        ss.x += dx;
+        ss.y += dy;
+        ss.life++;
+        ss.alpha -= 0.02;
+        if (ss.life > 40 || ss.alpha <= 0) shootingStars.splice(i, 1);
+    }
+
+    requestAnimationFrame(animate);
+}
+animate();
+
+const spotlight = document.getElementById('spotlight');
+document.addEventListener('mousemove', (e) => {
+    spotlight.style.left = e.clientX + 'px';
+    spotlight.style.top = e.clientY + 'px';
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+const filmSVG = `<svg viewBox="0 0 60 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="60" height="200" fill="#111" rx="4"/>
+  <rect x="8" y="0" width="44" height="18" fill="#1a1a1a"/>
+  <rect x="8" y="182" width="44" height="18" fill="#1a1a1a"/>
+  <rect x="14" y="28" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="58" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="88" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="118" width="32" height="22" fill="#222" rx="2"/>
+  <rect x="14" y="148" width="32" height="22" fill="#222" rx="2"/>
+</svg>`;
+
+const filmContainer = document.getElementById('filmStrips');
+for (let i = 0; i < 6; i++) {
+    const el = document.createElement('div');
+    el.className = 'film-strip';
+    el.innerHTML = filmSVG;
+    el.style.left = `${8 + i * 16}%`;
+    el.style.setProperty('--rot', `${(Math.random() - 0.5) * 40}deg`);
+    el.style.animationDuration = `${18 + Math.random() * 14}s`;
+    el.style.animationDelay = `${Math.random() * 12}s`;
+    filmContainer.appendChild(el);
+}
+
+const movieTitles = [
+    'INCEPTION', 'INTERSTELLAR', 'THE DARK KNIGHT', 'PULP FICTION',
+    'PARASITE', 'RRR', 'DUNE', 'OPPENHEIMER', 'LA LA LAND',
+    'THE GODFATHER', 'FORREST GUMP', 'AVATAR', 'TITANIC', 'JOKER'
+];
+const ticker = document.getElementById('ticker');
+const tickerItems = [...movieTitles, ...movieTitles].map((t) => {
+    const span = document.createElement('span');
+    span.textContent = t;
+    const dot = document.createElement('span');
+    dot.className = 'ticker-dot';
+    dot.textContent = ' ✦ ';
+    return [span, dot];
+}).flat();
+tickerItems.forEach((el) => ticker.appendChild(el));
+
+// OTP Box Logic
+const otpBoxes = document.querySelectorAll('.otp-box');
+const otpForm = document.getElementById('otpForm');
+const verifyBtn = document.getElementById('verifyBtn');
+const hiddenOtp = document.getElementById('hiddenOtp');
+
+function submitCombinedOtp() {
+    const combined = Array.from(otpBoxes).map(b => b.value).join('');
+    hiddenOtp.value = combined;
+}
+
+otpForm.addEventListener('submit', (e) => {
+    submitCombinedOtp();
+});
+const timerElement = document.getElementById('timer');
+const resendLink = document.getElementById('resendLink');
+
+otpBoxes.forEach((box, index) => {
+    box.addEventListener('input', (e) => {
+        const value = e.target.value;
+        if (!/^\d$/.test(value)) {
+            e.target.value = '';
+            return;
+        }
+        e.target.value = value;
+        e.target.classList.add('filled');
+        
+        if (index < otpBoxes.length - 1) {
+            otpBoxes[index + 1].focus();
+        }
+        
+        // Check if all boxes are filled
+        const allFilled = Array.from(otpBoxes).every(b => b.value !== '');
+        if (allFilled) {
+            submitCombinedOtp();
+            otpForm.submit();
+        }
+    });
+
+    box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            otpBoxes[index - 1].focus();
+        }
+    });
+
+    box.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const digits = paste.replace(/\D/g, '').slice(0, 6);
+        
+        digits.split('').forEach((digit, i) => {
+            if (otpBoxes[i]) {
+                otpBoxes[i].value = digit;
+                otpBoxes[i].classList.add('filled');
+            }
+        });
+        
+        if (digits.length === 6) {
+            submitCombinedOtp();
+            otpForm.submit();
+        }
+    });
+});
+
+// Timer Logic
+let timeLeft = 300; // 5 minutes
+
+const countdown = setInterval(() => {
+    if (timeLeft <= 0) {
+        clearInterval(countdown);
+        timerElement.textContent = "Expired";
+        timerElement.classList.add('expiring');
+        verifyBtn.disabled = true;
+        verifyBtn.style.opacity = "0.5";
+        verifyBtn.style.cursor = "not-allowed";
+        
+        resendLink.classList.add('enabled');
+    } else {
+        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 60) {
+            timerElement.classList.add('expiring');
+        }
+        
+        if (timeLeft <= 270) {
+            resendLink.classList.add('enabled');
+        }
+    }
+}, 1000);
+
+function showToast(text) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+// Error handling from flash messages
+const errorMsg = document.querySelector('.msg.error');
+if (errorMsg) {
+    otpBoxes.forEach(box => {
+        box.classList.add('error');
+        box.value = '';
+    });
+    setTimeout(() => {
+        otpBoxes.forEach(box => box.classList.remove('error'));
+        otpBoxes[0].focus();
+    }, 400);
+}
+
+// Dev Sandbox OTP — declared first so all handlers can reference it
+const isDevModeEnabled = {{ 'true' if dev_mode else 'false' }};
+let lastLoggedOtp = null;
+let targetExpiryTime = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Populate inline OTP box immediately from server-rendered value
+    const codeTextEl = document.getElementById('devOtpCodeText');
+    const floatEl = document.getElementById('devOtpDisplay');
+    const initialOtp = "{{ active_otp if active_otp else '' }}";
+
+    if (isDevModeEnabled && initialOtp && /^\d{6}$/.test(initialOtp)) {
+        if (codeTextEl) codeTextEl.textContent = initialOtp;
+        if (floatEl) floatEl.textContent = initialOtp;
+        lastLoggedOtp = initialOtp;
+        console.log("Development OTP: " + initialOtp);
+    }
+});
+
+
+
+async function fetchDevOtp() {
+    try {
+        const res = await fetch('/api/debug/otp', { credentials: 'same-origin' });
+        const panel = document.getElementById('devOtpPanel');
+        
+        if (res.status === 403) {
+            if (panel && !isDevModeEnabled) {
+                panel.style.display = 'none';
+            }
+            return;
+        }
+        
+        const data = await res.json();
+        
+        // Hide panel if DEV_MODE is false
+        if (data.dev_mode === false || !isDevModeEnabled) {
+            if (panel) panel.style.display = 'none';
+            return;
+        } else if (panel) {
+            panel.style.display = 'block';
+            console.log("Sandbox panel rendered");
+        }
+        
+        if (data.success && data.otp) {
+            const displayEl = document.getElementById('devOtpDisplay');
+            if (displayEl) {
+                displayEl.textContent = data.otp;
+                displayEl.style.color = "white";
+            }
+            const codeTextEl = document.getElementById('devOtpCodeText');
+            if (codeTextEl) {
+                codeTextEl.textContent = data.otp;
+            }
+            if (isDevModeEnabled && lastLoggedOtp !== data.otp) {
+                lastLoggedOtp = data.otp;
+                console.log("Development OTP: " + data.otp);
+            }
+            
+            if (data.created_at) {
+                const parts = data.created_at.split(' ');
+                const timePart = parts.length > 1 ? parts[1] : data.created_at;
+                document.getElementById('devOtpTimestamp').textContent = timePart;
+            }
+            
+            const statusEl = document.getElementById('devOtpStatus');
+            if (statusEl) {
+                statusEl.textContent = data.status;
+                if (data.status === 'Expired') {
+                    statusEl.style.color = '#ff4444';
+                } else {
+                    statusEl.style.color = '#4dffaa';
+                }
+            }
+            
+            if (data.expires_at) {
+                targetExpiryTime = new Date(data.expires_at.replace(/-/g, '/'));
+            }
+            
+            // Enable buttons
+            const copyBtn = document.querySelector('button[onclick="copyDevOtpOnly()"]');
+            const autofillBtn = document.querySelector('button[onclick="autofillDevOtpOnly()"]');
+            if (copyBtn) copyBtn.disabled = false;
+            if (autofillBtn) autofillBtn.disabled = false;
+        } else {
+            // Display clear error message (requirement 7)
+            const errorMsg = data.error || "No active OTP found";
+            const displayEl = document.getElementById('devOtpDisplay');
+            if (displayEl) {
+                displayEl.textContent = "ERROR";
+                displayEl.style.color = "#ff4444";
+            }
+            
+            const statusEl = document.getElementById('devOtpStatus');
+            if (statusEl) {
+                statusEl.textContent = errorMsg;
+                statusEl.style.color = '#ff4444';
+            }
+            
+            document.getElementById('devOtpTimestamp').textContent = "--:--:--";
+            document.getElementById('devOtpCountdown').textContent = "--:--";
+            
+            // Disable buttons
+            const copyBtn = document.querySelector('button[onclick="copyDevOtpOnly()"]');
+            const autofillBtn = document.querySelector('button[onclick="autofillDevOtpOnly()"]');
+            if (copyBtn) copyBtn.disabled = true;
+            if (autofillBtn) autofillBtn.disabled = true;
+        }
+    } catch (err) {
+        console.error("Failed to fetch dev OTP:", err);
+        const displayEl = document.getElementById('devOtpDisplay');
+        if (displayEl) {
+            displayEl.textContent = "ERROR";
+            displayEl.style.color = "#ff4444";
+        }
+        const statusEl = document.getElementById('devOtpStatus');
+        if (statusEl) {
+            statusEl.textContent = "Fetch Failed";
+            statusEl.style.color = '#ff4444';
+        }
+    }
+}
+if (isDevModeEnabled) {
+    fetchDevOtp();
+    // Poll every 2 seconds in case they request a new code
+    setInterval(fetchDevOtp, 2000);
+}
+
+// Local countdown loop
+setInterval(() => {
+    if (!targetExpiryTime) return;
+    const now = new Date();
+    const diffMs = targetExpiryTime - now;
+    const countdownEl = document.getElementById('devOtpCountdown');
+    if (!countdownEl) return;
+    
+    if (diffMs <= 0) {
+        countdownEl.textContent = "00:00";
+        countdownEl.style.color = "#ff4444";
+        const statusEl = document.getElementById('devOtpStatus');
+        if (statusEl) {
+            statusEl.textContent = "Expired";
+            statusEl.style.color = "#ff4444";
+        }
+    } else {
+        const totalSecs = Math.floor(diffMs / 1000);
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+        countdownEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (totalSecs <= 60) {
+            countdownEl.style.color = "#ff4444";
+        } else {
+            countdownEl.style.color = "var(--cyan)";
+        }
+    }
+}, 1000);
+
+function copyDevOtpOnly() {
+    const otp = document.getElementById('devOtpDisplay').textContent.trim();
+    if (/^\d{6}$/.test(otp)) {
+        navigator.clipboard.writeText(otp);
+        showToast("OTP Copied to Clipboard!");
+    } else {
+        showToast("No valid OTP to copy!");
+    }
+}
+
+function autofillDevOtpOnly() {
+    const otp = document.getElementById('devOtpDisplay').textContent.trim();
+    if (/^\d{6}$/.test(otp)) {
+        const boxes = document.querySelectorAll('.otp-box');
+        otp.split('').forEach((digit, i) => {
+            if (boxes[i]) {
+                boxes[i].value = digit;
+                boxes[i].classList.add('filled');
+            }
+        });
+        showToast("OTP Autofilled!");
+        
+        setTimeout(() => {
+            submitCombinedOtp();
+            document.getElementById('otpForm').submit();
+        }, 300);
+    } else {
+        showToast("No valid OTP to autofill!");
+    }
+}
+</script>
+</body>
+</html>
